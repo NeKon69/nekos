@@ -29,11 +29,11 @@ _start:
     call kernel_main
     // Fallback, ideally should never be hit.
     // Disable maskable interrupts.
-	cli
+    cli
     // Halt until an interrupt (non-maskable) occurs, then repeat.
     halt_loop:	
         hlt
-	jmp halt_loop
+    jmp halt_loop
 
 // Set size of _start so the debugger and stuff know the size of the function.
 .size _start, . - _start
