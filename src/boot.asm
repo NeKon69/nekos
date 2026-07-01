@@ -31,7 +31,7 @@ _start:
     // Disable maskable interrupts.
     cli
     // Halt until an interrupt (non-maskable) occurs, then repeat.
-    halt_loop:	
+    halt_loop:
         hlt
     jmp halt_loop
 
