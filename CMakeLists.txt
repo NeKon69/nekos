@@ -28,6 +28,9 @@ set(KERNEL_C_FLAGS
     -ffreestanding
     -fno-builtin
     -fno-stack-protector
+    -mno-sse
+    -mno-sse2
+    -mno-mmx
     -Wall
     -Wextra
 )

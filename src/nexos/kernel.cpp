@@ -41,7 +41,8 @@ public:
   }
   void PutChar(uint8_t Char) {
     if (Char == '\n') {
-      AdvanceCursor();
+      if (++Row == HEIGHT)
+        Row = 0;
       Col = 0;
       return;
     }

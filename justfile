@@ -27,7 +27,7 @@ build:
     grub-mkrescue -o {{dap_bin}} {{iso_dir}}
 
 run: build
-    qemu
+    qemu-system-i386 -cdrom {{dap_bin}}
 
 test: build
     cd {{build_dir}} && ctest -C {{profile}} --output-on-failure
