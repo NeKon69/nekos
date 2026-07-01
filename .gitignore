@@ -1,0 +1,91 @@
+# Build directories
+build/
+Build/
+build-*/
+build_*/
+cmake-build-*/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+CMakeLists.txt.user
+CMakeUserPresets.json
+_deps/
+*-prefix/
+
+# Compile database copied out of the build dir for clangd
+compile_commands.json
+
+# C/C++ build artifacts
+*.d
+*.i
+*.ii
+*.o
+*.obj
+*.lo
+*.slo
+*.a
+*.la
+*.lai
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.gch
+*.pch
+
+# Kernel / OS-dev artifacts
+*.elf
+*.iso
+*.img
+*.bin
+*.raw
+*.qcow2
+*.map
+*.sym
+*.hex
+*.lst
+*.dump
+*.dis
+
+# Debug/profiling artifacts
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Editor / local project state
+.cache/
+.idea/
+.vscode/
+.nvim/
+*.iml
+*.iws
+out/
+
+# Vim swap/session files
+[._]*.s[a-v][a-z]
+!*.svg
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+tags
+[._]*.un~
+
+# Linux local files
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
