@@ -1,7 +1,7 @@
 # Auto-generated justfile from template: cpp_cmake.just
 
 profile := "Debug"
-name := "nexos"
+name := "nekos"
 build_dir := "build_" + profile
 iso_dir := build_dir + "/iso"
 kernel_elf := name + ".elf"

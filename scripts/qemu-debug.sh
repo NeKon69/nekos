@@ -2,7 +2,7 @@
 set -euo pipefail
 
 profile="${1:-Debug}"
-name="${2:-nexos}"
+name="${2:-nekos}"
 build_dir="build_${profile}"
 iso_path="${build_dir}/${name}.iso"
 

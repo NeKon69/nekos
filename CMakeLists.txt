@@ -59,7 +59,7 @@ file(GLOB_RECURSE KERNEL_SOURCES CONFIGURE_DEPENDS
 
 add_executable(kernel ${KERNEL_SOURCES})
 set_target_properties(kernel PROPERTIES
-    OUTPUT_NAME "nexos.elf"
+    OUTPUT_NAME "nekos.elf"
     LINKER_LANGUAGE C
 )
 
