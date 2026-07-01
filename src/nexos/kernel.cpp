@@ -35,11 +35,12 @@ public:
   }
 
   void PutString(const char *Str) {
-    for (size_t i = 0; i < strlen(Str); i++) {
+    size_t len = strlen(Str);
+    for (size_t i = 0; i < len; i++) {
       PutChar(Str[i]);
     }
   }
-  void PutChar(uint8_t Char) {
+  void PutChar(const char Char) {
     if (Char == '\n') {
       if (++Row == HEIGHT)
         Row = 0;
@@ -61,10 +62,10 @@ public:
   }
 
 private:
-  uint8_t vgaMakeColor(VGAColor FG, VGAColor BG) { return FG | BG << 4; }
+  uint8_t vgaMakeColor(VGAColor FG, VGAColor BG) { return FG | (BG << 4); }
 
   uint16_t vgaMakeChar(uint8_t Char, uint8_t Color) {
-    return Char | Color << 8;
+    return Char | (Color << 8);
   }
 
   void AdvanceCursor() {
