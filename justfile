@@ -36,4 +36,4 @@ clean:
     rm -rf build_*
 
 format:
-    clang-format -i src/*.cpp include/*.h
+    git ls-files '*.cpp' '*.h' '*.hpp' '*.c' | xargs clang-format -i

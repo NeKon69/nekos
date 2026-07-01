@@ -76,9 +76,9 @@ private:
     }
   }
 
+  volatile uint16_t *VideoMemory = reinterpret_cast<uint16_t *>(0xB8000);
   const uint8_t WIDTH = 80;
   const uint8_t HEIGHT = 25;
-  uint16_t *VideoMemory = (uint16_t *)0xB8000;
   size_t Row = 0;
   size_t Col = 0;
   VGAColor BGCol = BLACK;
