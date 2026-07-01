@@ -70,6 +70,8 @@ target_link_options(kernel PRIVATE
     -nostdlib
     -nostartfiles
     -nodefaultlibs
+    -static
+    -no-pie
     -Wl,--build-id=none
 )
 

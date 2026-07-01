@@ -41,7 +41,7 @@ public:
   }
   void PutChar(uint8_t Char) {
     if (Char == '\n') {
-      Row++;
+      AdvanceCursor();
       Col = 0;
       return;
     }
@@ -86,5 +86,5 @@ private:
 
 extern "C" void kernel_main() {
   VGA Vga;
-  Vga.PutString("Hello, I love myself!\nBIG PENISSS HUGE ONE EVEN!!!");
+  Vga.PutString("Hello os world!!!!\n\n\n\n\nLOLOLOL");
 }
