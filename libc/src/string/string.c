@@ -39,8 +39,10 @@ char *strncat(char *dest, const char *src, size_t n) {
   char *ret = dest;
   while (*dest)
     dest++;
-  strncpy(dest, src, n);
-  dest[n] = '\0';
+  size_t i = 0;
+  while (i < n && src[i])
+    *dest++ = src[i++];
+  *dest = '\0';
   return ret;
 }
 
