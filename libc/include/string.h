@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-size_t strlen(const char *str);
+size_t strlen(const char *str [[gnu::nonnull]]);
 
 #ifdef __cplusplus
 }
