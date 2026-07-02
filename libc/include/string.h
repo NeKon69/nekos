@@ -2,15 +2,12 @@
 #define NEKOS_LIBC_STRING_H
 
 #include <stddef.h>
+#include <extern_c.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+EXTERN_C_BEGIN
 
 size_t strlen(const char *str [[gnu::nonnull]]);
 
-#ifdef __cplusplus
-}
-#endif
+EXTERN_C_END
 
 #endif
