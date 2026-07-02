@@ -33,6 +33,11 @@ set(KERNEL_C_FLAGS
     -mno-mmx
     -Wall
     -Wextra
+    -Wlifetime-safety-all
+    -Xclang
+    -fexperimental-lifetime-safety-c
+    -Xclang
+    -fexperimental-lifetime-safety-tu-analysis
 )
 
 set(KERNEL_CXX_FLAGS
@@ -48,13 +53,21 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${KERNEL_C_FLAGS_STRING}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KERNEL_CXX_FLAGS_STRING}")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=${KERNEL_TARGET}")
 
+file(GLOB_RECURSE LIBC_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/libc/src/*.c"
+)
+
+add_library(c STATIC ${LIBC_SOURCES})
+target_include_directories(c PUBLIC
+    "${CMAKE_SOURCE_DIR}/libc/include"
+)
+
 file(GLOB_RECURSE KERNEL_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/*.c"
-    "${CMAKE_SOURCE_DIR}/src/*.cc"
-    "${CMAKE_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_SOURCE_DIR}/src/*.asm"
-    "${CMAKE_SOURCE_DIR}/src/*.s"
-    "${CMAKE_SOURCE_DIR}/src/*.S"
+    "${CMAKE_SOURCE_DIR}/kernel/src/*.cc"
+    "${CMAKE_SOURCE_DIR}/kernel/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/kernel/src/*.asm"
+    "${CMAKE_SOURCE_DIR}/kernel/src/*.s"
+    "${CMAKE_SOURCE_DIR}/kernel/src/*.S"
 )
 
 add_executable(kernel ${KERNEL_SOURCES})
@@ -64,8 +77,10 @@ set_target_properties(kernel PROPERTIES
 )
 
 target_include_directories(kernel PRIVATE
-    "${CMAKE_SOURCE_DIR}/include"
+    "${CMAKE_SOURCE_DIR}/kernel/include"
 )
+
+target_link_libraries(kernel PRIVATE c)
 
 target_link_options(kernel PRIVATE
     --target=${KERNEL_TARGET}
@@ -74,16 +89,23 @@ target_link_options(kernel PRIVATE
     -nostartfiles
     -nodefaultlibs
     -static
-    -no-pie
+    -Wl,--no-pie
     -Wl,--build-id=none
 )
 
 set(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/linker.ld")
-if(NOT EXISTS "${LINKER_SCRIPT}")
-    set(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/src/linker.ld")
-endif()
 
 if(EXISTS "${LINKER_SCRIPT}")
     target_link_options(kernel PRIVATE "-T${LINKER_SCRIPT}")
     set_target_properties(kernel PROPERTIES LINK_DEPENDS "${LINKER_SCRIPT}")
 endif()
+
+set(SYSROOT_DIR "${CMAKE_BINARY_DIR}/sysroot")
+add_custom_target(sysroot ALL
+    COMMAND ${CMAKE_COMMAND} -E rm -rf "${SYSROOT_DIR}/usr/include" "${SYSROOT_DIR}/usr/lib"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${SYSROOT_DIR}/usr/include/c++/v1" "${SYSROOT_DIR}/usr/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/libc/include" "${SYSROOT_DIR}/usr/include"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/libcxx/include" "${SYSROOT_DIR}/usr/include/c++/v1"
+    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:c>" "${SYSROOT_DIR}/usr/lib/"
+    DEPENDS c
+)
