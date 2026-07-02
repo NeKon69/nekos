@@ -1,8 +1,8 @@
 #ifndef NEKOS_LIBC_STRING_H
 #define NEKOS_LIBC_STRING_H
 
-#include <stddef.h>
 #include <extern_c.h>
+#include <stddef.h>
 
 EXTERN_C_BEGIN
 

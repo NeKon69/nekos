@@ -40,6 +40,7 @@ char *strncat(char *dest, const char *src, size_t n) {
   while (*dest)
     dest++;
   strncpy(dest, src, n);
+  dest[n] = '\0';
   return ret;
 }
 

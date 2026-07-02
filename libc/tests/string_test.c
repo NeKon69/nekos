@@ -252,9 +252,7 @@ void test_strchr_found_at_end(void) {
   TEST_ASSERT_EQUAL_PTR(&s[4], result);
 }
 
-void test_strchr_not_found(void) {
-  TEST_ASSERT_NULL(strchr("hello", 'z'));
-}
+void test_strchr_not_found(void) { TEST_ASSERT_NULL(strchr("hello", 'z')); }
 
 void test_strchr_null_terminator(void) {
   const char *s = "hello";
@@ -300,9 +298,7 @@ void test_strrchr_found_at_end(void) {
   TEST_ASSERT_EQUAL_PTR(&s[4], result);
 }
 
-void test_strrchr_not_found(void) {
-  TEST_ASSERT_NULL(strrchr("hello", 'z'));
-}
+void test_strrchr_not_found(void) { TEST_ASSERT_NULL(strrchr("hello", 'z')); }
 
 void test_strrchr_null_terminator(void) {
   const char *s = "hello";
@@ -327,17 +323,25 @@ void test_strrchr_multiple_occurrences(void) {
   TEST_ASSERT_EQUAL_PTR(&s[5], result);
 }
 
-void test_strspn_all_match(void) { TEST_ASSERT_EQUAL_UINT(3, strspn("abc", "abcdef")); }
+void test_strspn_all_match(void) {
+  TEST_ASSERT_EQUAL_UINT(3, strspn("abc", "abcdef"));
+}
 
-void test_strspn_none_match(void) { TEST_ASSERT_EQUAL_UINT(0, strspn("xyz", "abc")); }
+void test_strspn_none_match(void) {
+  TEST_ASSERT_EQUAL_UINT(0, strspn("xyz", "abc"));
+}
 
 void test_strspn_partial(void) {
   TEST_ASSERT_EQUAL_UINT(4, strspn("hellx", "hello"));
 }
 
-void test_strspn_empty_dest(void) { TEST_ASSERT_EQUAL_UINT(0, strspn("", "abc")); }
+void test_strspn_empty_dest(void) {
+  TEST_ASSERT_EQUAL_UINT(0, strspn("", "abc"));
+}
 
-void test_strspn_empty_src(void) { TEST_ASSERT_EQUAL_UINT(0, strspn("abc", "")); }
+void test_strspn_empty_src(void) {
+  TEST_ASSERT_EQUAL_UINT(0, strspn("abc", ""));
+}
 
 void test_strspn_single_char(void) {
   TEST_ASSERT_EQUAL_UINT(3, strspn("aaa", "a"));
@@ -402,21 +406,15 @@ void test_strpbrk_last_match(void) {
   TEST_ASSERT_EQUAL_PTR(&s[4], result);
 }
 
-void test_strpbrk_no_match(void) {
-  TEST_ASSERT_NULL(strpbrk("hello", "xyz"));
-}
+void test_strpbrk_no_match(void) { TEST_ASSERT_NULL(strpbrk("hello", "xyz")); }
 
-void test_strpbrk_empty_dest(void) {
-  TEST_ASSERT_NULL(strpbrk("", "abc"));
-}
+void test_strpbrk_empty_dest(void) { TEST_ASSERT_NULL(strpbrk("", "abc")); }
 
 void test_strpbrk_empty_breakset(void) {
   TEST_ASSERT_NULL(strpbrk("hello", ""));
 }
 
-void test_strpbrk_both_empty(void) {
-  TEST_ASSERT_NULL(strpbrk("", ""));
-}
+void test_strpbrk_both_empty(void) { TEST_ASSERT_NULL(strpbrk("", "")); }
 
 void test_strpbrk_multiple_matches(void) {
   const char *s = "ddbbaa";
@@ -442,22 +440,16 @@ void test_strstr_found_at_end(void) {
   TEST_ASSERT_EQUAL_PTR(&s[7], result);
 }
 
-void test_strstr_not_found(void) {
-  TEST_ASSERT_NULL(strstr("hello", "xyz"));
-}
+void test_strstr_not_found(void) { TEST_ASSERT_NULL(strstr("hello", "xyz")); }
 
 void test_strstr_empty_substr(void) {
   const char *s = "hello";
   TEST_ASSERT_EQUAL_PTR(s, strstr(s, ""));
 }
 
-void test_strstr_empty_str(void) {
-  TEST_ASSERT_NULL(strstr("", "abc"));
-}
+void test_strstr_empty_str(void) { TEST_ASSERT_NULL(strstr("", "abc")); }
 
-void test_strstr_both_empty(void) {
-  TEST_ASSERT_EQUAL_PTR("", strstr("", ""));
-}
+void test_strstr_both_empty(void) { TEST_ASSERT_EQUAL_PTR("", strstr("", "")); }
 
 void test_strstr_substr_longer(void) {
   TEST_ASSERT_NULL(strstr("hi", "hello"));
@@ -528,6 +520,12 @@ void test_strncat_multiple_appends(void) {
   strncat(buf, "c", 1);
   strncat(buf, "d", 1);
   TEST_ASSERT_EQUAL_STRING("abcd", buf);
+}
+
+void test_strncat_n_equals_strlen(void) {
+  char buf[11] = {'h', 'e', 'l', 'l', 'o', 0, 1, 1, 1, 1, 1};
+  strncat(buf, "world", 5);
+  TEST_ASSERT_EQUAL_UINT(10, strlen(buf));
 }
 
 void test_strlen(void) {
@@ -668,6 +666,7 @@ void test_strncat(void) {
   RUN_TEST(test_strncat_both_empty);
   RUN_TEST(test_strncat_exact_fit);
   RUN_TEST(test_strncat_multiple_appends);
+  RUN_TEST(test_strncat_n_equals_strlen);
 }
 
 int main(void) {
