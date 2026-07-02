@@ -186,6 +186,12 @@ void test_strcmp_same_pointer(void) {
   TEST_ASSERT_EQUAL_INT(0, strcmp(s, s));
 }
 
+void test_strcmp_compares_bytes_as_unsigned(void) {
+  char high[] = {(char)0xff, '\0'};
+  char low[] = {'z', '\0'};
+  TEST_ASSERT_TRUE(strcmp(high, low) > 0);
+}
+
 void test_strncmp_equal(void) {
   TEST_ASSERT_EQUAL_INT(0, strncmp("abc", "abc", 3));
 }
@@ -229,6 +235,12 @@ void test_strncmp_case_sensitive(void) {
 void test_strncmp_different_first_char(void) {
   int result = strncmp("b", "a", 1);
   TEST_ASSERT_EQUAL_INT(('b' - 'a'), result);
+}
+
+void test_strncmp_compares_bytes_as_unsigned(void) {
+  char high[] = {(char)0xff, '\0'};
+  char low[] = {'z', '\0'};
+  TEST_ASSERT_TRUE(strncmp(high, low, 1) > 0);
 }
 
 void test_strchr_found_at_beginning(void) {
@@ -277,6 +289,11 @@ void test_strchr_multiple_occurrences(void) {
   TEST_ASSERT_EQUAL_PTR(&s[1], result);
 }
 
+void test_strchr_converts_search_char(void) {
+  char s[] = {'a', (char)0xff, '\0'};
+  TEST_ASSERT_EQUAL_PTR(&s[1], strchr(s, 0xff));
+}
+
 void test_strrchr_found_at_beginning(void) {
   const char *s = "hello";
   char *result = strrchr(s, 'h');
@@ -321,6 +338,11 @@ void test_strrchr_multiple_occurrences(void) {
   const char *s = "banana";
   char *result = strrchr(s, 'a');
   TEST_ASSERT_EQUAL_PTR(&s[5], result);
+}
+
+void test_strrchr_converts_search_char(void) {
+  char s[] = {(char)0xff, 'a', (char)0xff, '\0'};
+  TEST_ASSERT_EQUAL_PTR(&s[2], strrchr(s, 0xff));
 }
 
 void test_strspn_all_match(void) {
@@ -572,6 +594,7 @@ void test_strcmp(void) {
   RUN_TEST(test_strcmp_case_sensitive);
   RUN_TEST(test_strcmp_different_first_char);
   RUN_TEST(test_strcmp_same_pointer);
+  RUN_TEST(test_strcmp_compares_bytes_as_unsigned);
 }
 
 void test_strncmp(void) {
@@ -586,6 +609,7 @@ void test_strncmp(void) {
   RUN_TEST(test_strncmp_ignores_after_null);
   RUN_TEST(test_strncmp_case_sensitive);
   RUN_TEST(test_strncmp_different_first_char);
+  RUN_TEST(test_strncmp_compares_bytes_as_unsigned);
 }
 
 void test_strchr(void) {
@@ -597,6 +621,7 @@ void test_strchr(void) {
   RUN_TEST(test_strchr_empty_string);
   RUN_TEST(test_strchr_empty_string_null);
   RUN_TEST(test_strchr_multiple_occurrences);
+  RUN_TEST(test_strchr_converts_search_char);
 }
 
 void test_strrchr(void) {
@@ -608,6 +633,7 @@ void test_strrchr(void) {
   RUN_TEST(test_strrchr_empty_string);
   RUN_TEST(test_strrchr_empty_string_null);
   RUN_TEST(test_strrchr_multiple_occurrences);
+  RUN_TEST(test_strrchr_converts_search_char);
 }
 
 void test_strspn(void) {
