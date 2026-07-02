@@ -2,9 +2,9 @@
 #error "This needs to be compiled with a ix86-elf compiler"
 #endif
 
-#include "stdlib/string.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 enum VGAColor : uint8_t {
   BLACK = 0,
