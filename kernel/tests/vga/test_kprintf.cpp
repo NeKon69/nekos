@@ -215,6 +215,12 @@ void test_kprintf_trailing_percent_after_format(void) {
   NEKOS_EXPECT_VGA_TEXT("n=42%");
 }
 
+void test_kprintf_percent_at_end(void) {
+  NEKOS_VGA_TEST_BEGIN();
+  kprintf("%%");
+  NEKOS_EXPECT_VGA_TEXT("%");
+}
+
 // --- zero values for all types ---
 
 void test_kprintf_all_zeros(void) {
