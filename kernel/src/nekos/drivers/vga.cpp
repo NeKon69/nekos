@@ -23,10 +23,8 @@ void VGA::putString(const char *Str) {
 }
 
 void VGA::putChar(char Char) {
-  if (ScreenFull) {
+  if (ScreenFull)
     clear();
-    ScreenFull = false;
-  }
   if (Char == '\n') {
     if (++Row == HEIGHT) {
       Row = 0;
@@ -48,6 +46,7 @@ void VGA::clear() {
   }
   Col = 0;
   Row = 0;
+  ScreenFull = false;
 }
 
 uint8_t VGA::vgaMakeColor(VGAColor FG, VGAColor BG) { return FG | (BG << 4); }

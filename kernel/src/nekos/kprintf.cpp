@@ -72,6 +72,7 @@ void kprintf(const char *Str, ...) {
       Vga.putChar(Str[I]);
     }
   }
+  va_end(Args);
 }
 
 void kclear() { Vga.clear(); }

@@ -1,6 +1,7 @@
 #ifndef NEKOS_LIBC_STRING_H
 #define NEKOS_LIBC_STRING_H
 
+#include <attributes.h>
 #include <extern_c.h>
 #include <stddef.h>
 
@@ -22,20 +23,20 @@ size_t strlen(const char *str [[gnu::nonnull]]);
 /// Copies the string `src` into the buffer `dst`.
 /// \param dst The buffer to copy the string into (must be non-null).
 /// \param src The string to copy (must be non-null).
-char *strcpy(char *dst [[clang::lifetimebound]] [[gnu::nonnull]],
+char *strcpy(char *dst NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
              const char *src [[gnu::nonnull]]);
 
 /// Copies the first `n` characters of the string `src` into the buffer `dst`.
 /// \param dst The buffer to copy the string into (must be non-null).
 /// \param src The string to copy (must be non-null).
 /// \param n The number of characters to copy.
-char *strncpy(char *dst [[clang::lifetimebound]] [[gnu::nonnull]],
+char *strncpy(char *dst NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
               const char *src [[gnu::nonnull]], size_t n);
 
 /// Appends the string `src` to the end of the string `dest`.
 /// \param dest The string to append to (must be non-null).
 /// \param src The string to append (must be non-null).
-char *strcat(char *dest [[clang::lifetimebound]] [[gnu::nonnull]],
+char *strcat(char *dest NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
              const char *src [[gnu::nonnull]]);
 
 /// Appends the first `n` characters of the string `src` to the end of the
@@ -43,7 +44,7 @@ char *strcat(char *dest [[clang::lifetimebound]] [[gnu::nonnull]],
 /// \param dest The string to append to (must be non-null).
 /// \param src The string to append (must be non-null).
 /// \param n The number of characters to append.
-char *strncat(char *dest [[clang::lifetimebound]] [[gnu::nonnull]],
+char *strncat(char *dest NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
               const char *src [[gnu::nonnull]], size_t n);
 
 /// Compares the strings `s1` and `s2`.
@@ -62,14 +63,13 @@ int strncmp(const char *s1 [[gnu::nonnull]], const char *s2 [[gnu::nonnull]],
 /// string `str`.
 /// \param str The string to search (must be non-null).
 /// \param ch The character to search for.
-char *strchr(const char *str [[clang::lifetimebound]] [[gnu::nonnull]], int ch);
+char *strchr(const char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]], int ch);
 
 /// Returns the index of the last occurrence of the character `ch` in the string
 /// `str`.
 /// \param str The string to search (must be non-null).
 /// \param ch The character to search for.
-char *strrchr(const char *str [[clang::lifetimebound]] [[gnu::nonnull]],
-              int ch);
+char *strrchr(const char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]], int ch);
 
 /// Returns the count of characters in the string `s1` that are in the string
 /// `s2`.
@@ -89,23 +89,23 @@ size_t strcspn(const char *str [[gnu::nonnull]],
 /// the string `breakset`.
 /// \param dest The string to search (must be non-null).
 /// \param breakset The string to search for (must be non-null).
-char *strpbrk(const char *dest [[clang::lifetimebound]] [[gnu::nonnull]],
+char *strpbrk(const char *dest NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
               const char *breakset [[gnu::nonnull]]);
 
 /// Returns the pointer to the first occurrence of the string `substr` in the
 /// string `str`.
 /// \param str The string to search (must be non-null).
 /// \param substr The string to search for (must be non-null).
-char *strstr(const char *str [[clang::lifetimebound]] [[gnu::nonnull]],
+char *strstr(const char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
              const char *substr [[gnu::nonnull]]);
 
 /// Reverses the order of the characters in the string `str`.
 /// \param str The string to reverse (must be non-null).
-char *strrev(char *str [[clang::lifetimebound]] [[gnu::nonnull]]);
+char *strrev(char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]]);
 
 /// Converts the characters in the string `str` to uppercase.
 /// \param str The string to convert (must be non-null).
-char *strupr(char *str [[clang::lifetimebound]] [[gnu::nonnull]]);
+char *strupr(char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]]);
 
 EXTERN_C_END
 
