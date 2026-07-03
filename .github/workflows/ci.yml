@@ -40,6 +40,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            binutils \
             clang \
             cmake \
             g++-multilib \
@@ -48,6 +49,7 @@ jobs:
             grub-common \
             grub-pc-bin \
             just \
+            lld \
             mtools \
             qemu-system-x86 \
             xorriso

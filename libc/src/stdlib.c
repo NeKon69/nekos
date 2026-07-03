@@ -6,7 +6,7 @@
 
 const char *Alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-char *UToAImpl(uint32_t Value, char *Str [[clang::lifetimebound]], int Base) {
+char *UToAImpl(uint32_t Value, char *Str NEKOS_LIFETIMEBOUND, int Base) {
   if (Value == 0)
     *Str++ = '0';
   while (Value > 0) {
