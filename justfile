@@ -30,6 +30,7 @@ run: build
     qemu-system-i386 -cdrom {{dap_bin}}
 
 test: build
+    scripts/qemu-kernel-test.sh {{profile}} {{name}}
     cd {{build_dir}} && ctest -C {{profile}} --output-on-failure
 
 clean:

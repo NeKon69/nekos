@@ -26,6 +26,7 @@ _start:
     // Make esp point to the top of the stack.
     mov $stack_top, %esp
     // Call the kernel main function.
+    call init_global_objects
     call kernel_main
     // Fallback, ideally should never be hit.
     // Disable maskable interrupts.
