@@ -7,7 +7,7 @@
 drivers::VGA Vga;
 
 // Used for conversions.
-char Buffer[32];
+char Buffer[33];
 
 void kputs(const char *Char) { Vga.putString(Char); }
 
@@ -15,7 +15,7 @@ void kprintf(const char *Str, ...) {
   va_list Args;
   va_start(Args, Str);
 
-  for (uint16_t I = 0; Str[I]; I++) {
+  for (size_t I = 0; Str[I]; I++) {
     if (Str[I] == '%') {
       I++;
       switch (Str[I]) {
@@ -43,14 +43,22 @@ void kprintf(const char *Str, ...) {
         break;
       case 'p':
         Vga.putString("0x");
-        Vga.putString(utoa(va_arg(Args, uint32_t), Buffer, 16));
+        Vga.putString(
+            utoa(reinterpret_cast<uint32_t>(va_arg(Args, void *)), Buffer, 16));
         break;
       case 'z':
         if (Str[I + 1] == 'u') {
           // size_t and unsigned int are the same on my arch heh.
           Vga.putString(utoa(va_arg(Args, size_t), Buffer, 10));
           I++;
+        } else {
+          Vga.putChar('%');
+          Vga.putChar(Str[I]);
         }
+        break;
+      default:
+        Vga.putChar('%');
+        Vga.putChar(Str[I]);
         break;
       }
     } else {

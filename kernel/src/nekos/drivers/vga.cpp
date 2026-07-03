@@ -59,5 +59,5 @@ void VGA::advanceCursor() {
   }
 }
 
-volatile uint16_t *VGA::VideoMemory = (uint16_t *)0xB8000;
+volatile uint16_t *VGA::VideoMemory = reinterpret_cast<uint16_t *>(0xB8000);
 } // namespace drivers
