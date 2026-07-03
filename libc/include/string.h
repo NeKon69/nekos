@@ -99,6 +99,14 @@ char *strpbrk(const char *dest [[clang::lifetimebound]] [[gnu::nonnull]],
 char *strstr(const char *str [[clang::lifetimebound]] [[gnu::nonnull]],
              const char *substr [[gnu::nonnull]]);
 
+/// Reverses the order of the characters in the string `str`.
+/// \param str The string to reverse (must be non-null).
+char *strrev(char *str [[clang::lifetimebound]] [[gnu::nonnull]]);
+
+/// Converts the characters in the string `str` to uppercase.
+/// \param str The string to convert (must be non-null).
+char *strupr(char *str [[clang::lifetimebound]] [[gnu::nonnull]]);
+
 EXTERN_C_END
 
 #endif

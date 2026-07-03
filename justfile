@@ -30,7 +30,11 @@ run: build
     qemu-system-i386 -cdrom {{dap_bin}}
 
 test: build
-    cd {{build_dir}} && ctest -C {{profile}} --output-on-failure
+    #!/usr/bin/env bash
+    if [ "{{profile}}" = "Debug" ] || [ "{{profile}}" = "RelWithDebInfo" ]; then
+        scripts/qemu-kernel-test.sh "{{profile}}" "{{name}}"
+    fi
+    cd "{{build_dir}}" && ctest -C "{{profile}}" --output-on-failure
 
 clean:
     rm -rf build_*

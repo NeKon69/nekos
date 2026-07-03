@@ -550,6 +550,36 @@ void test_strncat_n_equals_strlen(void) {
   TEST_ASSERT_EQUAL_UINT(10, strlen(buf));
 }
 
+void test_strrev_empty(void) {
+  char buf[1] = "";
+  strrev(buf);
+  TEST_ASSERT_EQUAL_STRING("", buf);
+}
+
+void test_strrev_single(void) {
+  char buf[2] = "x";
+  strrev(buf);
+  TEST_ASSERT_EQUAL_STRING("x", buf);
+}
+
+void test_strrev_odd(void) {
+  char buf[6] = "abcde";
+  strrev(buf);
+  TEST_ASSERT_EQUAL_STRING("edcba", buf);
+}
+
+void test_strrev_even(void) {
+  char buf[5] = "abcd";
+  strrev(buf);
+  TEST_ASSERT_EQUAL_STRING("dcba", buf);
+}
+
+void test_strrev_long(void) {
+  char buf[44] = "the quick brown fox jumps over the lazy dog";
+  strrev(buf);
+  TEST_ASSERT_EQUAL_STRING("god yzal eht revo spmuj xof nworb kciuq eht", buf);
+}
+
 void test_strlen(void) {
   RUN_TEST(test_strlen_empty);
   RUN_TEST(test_strlen_hello);
@@ -695,6 +725,87 @@ void test_strncat(void) {
   RUN_TEST(test_strncat_n_equals_strlen);
 }
 
+void test_strrev(void) {
+  RUN_TEST(test_strrev_empty);
+  RUN_TEST(test_strrev_single);
+  RUN_TEST(test_strrev_odd);
+  RUN_TEST(test_strrev_even);
+  RUN_TEST(test_strrev_long);
+}
+
+void test_strupr_all_upper(void) {
+  char buf[8] = "HELLO";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("HELLO", buf);
+}
+
+void test_strupr_all_lower(void) {
+  char buf[8] = "hello";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("HELLO", buf);
+}
+
+void test_strupr_mixed(void) {
+  char buf[16] = "hElLo WoRlD";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("HELLO WORLD", buf);
+}
+
+void test_strupr_empty(void) {
+  char buf[1] = "";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("", buf);
+}
+
+void test_strupr_numbers(void) {
+  char buf[8] = "123abc";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("123ABC", buf);
+}
+
+void test_strupr_returns_same_ptr(void) {
+  char buf[8] = "hello";
+  char *ret = strupr(buf);
+  TEST_ASSERT_EQUAL_PTR(buf, ret);
+}
+
+void test_strupr_no_lowercase(void) {
+  char buf[8] = "123 !@#";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("123 !@#", buf);
+}
+
+void test_strupr_single_lower(void) {
+  char buf[2] = "a";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("A", buf);
+}
+
+void test_strupr_single_upper(void) {
+  char buf[2] = "A";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("A", buf);
+}
+
+void test_strupr_long(void) {
+  char buf[44] = "the quick brown fox jumps over the lazy dog";
+  strupr(buf);
+  TEST_ASSERT_EQUAL_STRING("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG", buf);
+}
+
+void test_strupr(void) {
+  RUN_TEST(test_strupr_all_upper);
+  RUN_TEST(test_strupr_all_lower);
+  RUN_TEST(test_strupr_mixed);
+  RUN_TEST(test_strupr_empty);
+  RUN_TEST(test_strupr_numbers);
+  RUN_TEST(test_strupr_returns_same_ptr);
+  RUN_TEST(test_strupr_no_lowercase);
+  RUN_TEST(test_strupr_single_lower);
+  RUN_TEST(test_strupr_single_upper);
+  RUN_TEST(test_strupr_long);
+}
+
 int main(void) {
   UNITY_BEGIN();
   test_strlen();
@@ -710,5 +821,7 @@ int main(void) {
   test_strcspn();
   test_strpbrk();
   test_strstr();
+  test_strrev();
+  test_strupr();
   return UNITY_END();
 }

@@ -123,3 +123,23 @@ char *strstr(const char *str, const char *substr) {
   }
   return NULL;
 }
+
+char *strrev(char *str) {
+  size_t len = strlen(str);
+  for (size_t i = 0; i < len / 2; i++) {
+    char temp = str[i];
+    str[i] = str[len - i - 1];
+    str[len - i - 1] = temp;
+  }
+  return str;
+}
+
+char *strupr(char *str) {
+  char *ret = str;
+  while (*str) {
+    if (*str >= 'a' && *str <= 'z')
+      *str += 'A' - 'a';
+    str++;
+  }
+  return ret;
+}

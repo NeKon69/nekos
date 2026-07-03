@@ -8,6 +8,12 @@ SECTIONS {
     *(.multiboot)
     *(.text*)
   }
+  .init_array : ALIGN(4096) {
+    __init_array_start = .;
+    KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)))
+    KEEP(*(.init_array))
+    __init_array_end = .;
+  }
 
   /* ro stands for read-only */
   .rodata : ALIGN(4096) {
