@@ -38,6 +38,7 @@ set(KERNEL_C_FLAGS
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 23)
     list(APPEND KERNEL_C_FLAGS
         -Wlifetime-safety-all
+        -Xclang=-lifetime-safety-lifetimebound-macro=NEKOS_LIFETIMEBOUND
         -Xclang=-fexperimental-lifetime-safety-c
         -Xclang=-fexperimental-lifetime-safety-tu-analysis
     )
