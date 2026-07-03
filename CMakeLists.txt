@@ -33,10 +33,15 @@ set(KERNEL_C_FLAGS
     -mno-mmx
     -Wall
     -Wextra
-    -Wlifetime-safety-all
-    -Xclang=-fexperimental-lifetime-safety-c
-    -Xclang=-fexperimental-lifetime-safety-tu-analysis
 )
+
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 23)
+    list(APPEND KERNEL_C_FLAGS
+        -Wlifetime-safety-all
+        -Xclang=-fexperimental-lifetime-safety-c
+        -Xclang=-fexperimental-lifetime-safety-tu-analysis
+    )
+endif()
 
 set(KERNEL_CXX_FLAGS
     ${KERNEL_C_FLAGS}

@@ -2,7 +2,6 @@
 #include "nekos/drivers/vga.hpp"
 #include "stdlib.h"
 #include "string.h"
-#include <cstdarg>
 #include <stdarg.h>
 
 drivers::VGA Vga;

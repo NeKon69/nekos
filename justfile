@@ -10,6 +10,7 @@ dap_args := ""
 
 build:
     #!/usr/bin/env bash
+    set -euo pipefail
     cmake -B {{build_dir}} -DCMAKE_BUILD_TYPE={{profile}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build {{build_dir}}
     cp {{build_dir}}/compile_commands.json .
@@ -31,6 +32,7 @@ run: build
 
 test: build
     #!/usr/bin/env bash
+    set -euo pipefail
     if [ "{{profile}}" = "Debug" ] || [ "{{profile}}" = "RelWithDebInfo" ]; then
         scripts/qemu-kernel-test.sh "{{profile}}" "{{name}}"
     fi
