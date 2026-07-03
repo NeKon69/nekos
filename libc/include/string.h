@@ -69,8 +69,7 @@ char *strchr(const char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]], int ch);
 /// `str`.
 /// \param str The string to search (must be non-null).
 /// \param ch The character to search for.
-char *strrchr(const char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]],
-              int ch);
+char *strrchr(const char *str NEKOS_LIFETIMEBOUND [[gnu::nonnull]], int ch);
 
 /// Returns the count of characters in the string `s1` that are in the string
 /// `s2`.
