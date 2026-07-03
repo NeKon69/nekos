@@ -23,10 +23,14 @@ void VGA::putString(const char *Str) {
 }
 
 void VGA::putChar(char Char) {
+  if (ScreenFull) {
+    clear();
+    ScreenFull = false;
+  }
   if (Char == '\n') {
     if (++Row == HEIGHT) {
       Row = 0;
-      clear();
+      ScreenFull = true;
     }
     Col = 0;
     return;
@@ -57,7 +61,7 @@ void VGA::advanceCursor() {
     Col = 0;
     if (++Row == HEIGHT) {
       Row = 0;
-      clear();
+      ScreenFull = true;
     }
   }
 }

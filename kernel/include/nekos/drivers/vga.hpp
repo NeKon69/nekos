@@ -45,5 +45,6 @@ private:
   size_t Col = 0;
   VGAColor BGCol = BLACK;
   VGAColor FGCol = WHITE;
+  bool ScreenFull = false;
 };
 } // namespace drivers
