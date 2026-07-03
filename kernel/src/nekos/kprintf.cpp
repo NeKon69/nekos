@@ -2,6 +2,7 @@
 #include "nekos/drivers/vga.hpp"
 #include "stdlib.h"
 #include "string.h"
+#include <cstdarg>
 #include <stdarg.h>
 
 drivers::VGA Vga;
@@ -72,6 +73,7 @@ void kprintf(const char *Str, ...) {
       Vga.putChar(Str[I]);
     }
   }
+  va_end(Args);
 }
 
 void kclear() { Vga.clear(); }
