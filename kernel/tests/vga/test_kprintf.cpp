@@ -206,13 +206,13 @@ void test_kprintf_multiple_same(void) {
 void test_kprintf_trailing_percent(void) {
   NEKOS_VGA_TEST_BEGIN();
   kprintf("hello%");
-  NEKOS_EXPECT_VGA_TEXT("hello");
+  NEKOS_EXPECT_VGA_TEXT("hello%");
 }
 
 void test_kprintf_trailing_percent_after_format(void) {
   NEKOS_VGA_TEST_BEGIN();
   kprintf("n=%d%", 42);
-  NEKOS_EXPECT_VGA_TEXT("n=42");
+  NEKOS_EXPECT_VGA_TEXT("n=42%");
 }
 
 // --- zero values for all types ---

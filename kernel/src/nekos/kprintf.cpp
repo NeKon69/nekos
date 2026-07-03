@@ -18,8 +18,10 @@ void kprintf(const char *Str, ...) {
   for (size_t I = 0; Str[I]; I++) {
     if (Str[I] == '%') {
       I++;
-      if (Str[I] == '\0')
+      if (Str[I] == '\0') {
+        Vga.putChar('%');
         break;
+      }
       switch (Str[I]) {
       case 'd':
       case 'i':
