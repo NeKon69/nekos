@@ -3,13 +3,16 @@ file(GLOB_RECURSE KERNEL_CXX_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
-option(NEKOS_KERNEL_TESTS "Build kernel test harness into the kernel" ON)
+option(NEKOS_KERNEL_TESTS "Build kernel test harness into the kernel" OFF)
 
-if(NEKOS_KERNEL_TESTS)
+if(NEKOS_KERNEL_TESTS OR CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
+    set(NEKOS_KERNEL_TESTS_EFFECTIVE ON)
     file(GLOB_RECURSE KERNEL_TEST_SOURCES CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cc"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
     )
+else()
+    set(NEKOS_KERNEL_TESTS_EFFECTIVE OFF)
 endif()
 
 file(GLOB_RECURSE KERNEL_ASM_SOURCES CONFIGURE_DEPENDS
@@ -43,14 +46,15 @@ target_include_directories(kernel PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
-if(NEKOS_KERNEL_TESTS)
+if(NEKOS_KERNEL_TESTS_EFFECTIVE)
     target_include_directories(kernel PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/tests"
     )
 endif()
 
 target_compile_definitions(kernel PRIVATE
-    NEKOS_KERNEL_TESTS=$<BOOL:${NEKOS_KERNEL_TESTS}>
+    "$<$<COMPILE_LANGUAGE:C>:NEKOS_KERNEL_TESTS=$<BOOL:${NEKOS_KERNEL_TESTS_EFFECTIVE}>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:NEKOS_KERNEL_TESTS=$<BOOL:${NEKOS_KERNEL_TESTS_EFFECTIVE}>>"
 )
 
 target_link_libraries(kernel PRIVATE c)

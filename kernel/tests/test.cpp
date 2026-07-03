@@ -32,6 +32,8 @@ void init(drivers::Serial &Serial) {
   write("NEKOS TEST BEGIN\n");
 }
 
+void log(const char *Message) { write(Message); }
+
 void summary() {
   write("NEKOS TEST SUMMARY passed=");
   writeUnsigned(State.Passed);
@@ -39,7 +41,10 @@ void summary() {
   writeUnsigned(State.Failed);
   write("\n");
 
-  if (State.Failed == 0)
+  if (State.Passed == 0 && State.Failed == 0) {
+    write("NEKOS NO TESTS RUN\n");
+    write("NEKOS TESTS FAILED\n");
+  } else if (State.Failed == 0)
     write("NEKOS ALL TESTS PASSED\n");
   else
     write("NEKOS TESTS FAILED\n");

@@ -60,6 +60,9 @@ void kprintf(const char *Str, ...) {
           Vga.putChar(Str[I]);
         }
         break;
+      case '%':
+        Vga.putChar('%');
+        break;
       default:
         Vga.putChar('%');
         Vga.putChar(Str[I]);

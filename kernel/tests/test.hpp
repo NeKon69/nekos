@@ -14,6 +14,7 @@ struct TestState {
 void init(drivers::Serial &Serial);
 void runAll();
 void summary();
+void log(const char *Message);
 
 void pass();
 void fail(const char *Expression, const char *File, unsigned Line);
