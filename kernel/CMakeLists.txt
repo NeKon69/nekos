@@ -47,8 +47,11 @@ if(NEKOS_KERNEL_TESTS)
     target_include_directories(kernel PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/tests"
     )
-    target_compile_definitions(kernel PRIVATE NEKOS_KERNEL_TESTS=1)
 endif()
+
+target_compile_definitions(kernel PRIVATE
+    NEKOS_KERNEL_TESTS=$<BOOL:${NEKOS_KERNEL_TESTS}>
+)
 
 target_link_libraries(kernel PRIVATE c)
 
