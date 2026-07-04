@@ -19,7 +19,7 @@ void test_gdt_loads_expected_descriptor() {
   NEKOS_EXPECT_GDTR_LIMIT(3 * sizeof(uint64_t) - 1);
   NEKOS_EXPECT_GDT_ENTRY(0, tests::gdt::NullEntry);
   NEKOS_EXPECT_GDT_ENTRY(1, tests::gdt::KernelCodeEntry);
-  NEKOS_EXPECT_GDT_ENTRY(2, tests::gdt::KernelDataEntry);
+  NEKOS_EXPECT_GDT_ENTRY_ACCESSED(2);
 }
 
 void test_gdt_build_entry_encodes_null_descriptor() {

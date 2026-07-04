@@ -25,6 +25,7 @@ constexpr uint8_t Present = 0x80;
 constexpr uint8_t CodeData = 0x10;
 constexpr uint8_t Executable = 0x08;
 constexpr uint8_t Writable = 0x02;
+constexpr uint8_t Accessed = 0x01;
 constexpr uint8_t Size32 = 0x04;
 constexpr uint8_t Granularity4K = 0x08;
 
@@ -70,6 +71,10 @@ inline bool entryEquals(const GDTR &Gdtr, size_t Index, uint64_t Expected) {
   return table(Gdtr)[Index] == Expected;
 }
 
+inline bool entryAccessed(const GDTR &Gdtr, size_t Index) {
+  return (table(Gdtr)[Index] & (static_cast<uint64_t>(Accessed) << 40)) != 0;
+}
+
 } // namespace tests::gdt
 
 #define NEKOS_EXPECT_GDTR(Base, Limit)                                         \
@@ -94,4 +99,10 @@ inline bool entryEquals(const GDTR &Gdtr, size_t Index, uint64_t Expected) {
   do {                                                                         \
     const ::tests::gdt::GDTR Gdtr = ::tests::gdt::readGDTR();                  \
     NEKOS_EXPECT_TRUE(::tests::gdt::entryEquals((Gdtr), (Index), (Expected))); \
+  } while (false)
+
+#define NEKOS_EXPECT_GDT_ENTRY_ACCESSED(Index)                                 \
+  do {                                                                         \
+    const ::tests::gdt::GDTR Gdtr = ::tests::gdt::readGDTR();                  \
+    NEKOS_EXPECT_TRUE(::tests::gdt::entryAccessed((Gdtr), (Index)));           \
   } while (false)

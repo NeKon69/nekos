@@ -38,3 +38,19 @@ _start:
 
 // Set size of _start so the debugger and stuff know the size of the function.
 .size _start, . - _start
+
+
+// Apperantly this like reloads the registers with the correct values from the GDT? I don't know.
+.global flush_lgdt
+.type flush_lgdt, @function
+flush_lgdt:
+    ljmp $0x08, $flush
+flush:
+    mov $0x10, %ax
+    mov %ax, %ds
+    mov %ax, %ss
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    ret
+.size flush_lgdt, . - flush_lgdt

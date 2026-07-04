@@ -1,6 +1,8 @@
 #include "gdt.hpp"
 #include <stdint.h>
 
+extern "C" void flush_lgdt();
+
 // AccessByte helpers (bits 0-7 of the byte, maps to bits 40-47 of entry)
 
 /// \param Value true = segment has been accessed (CPU sets this automatically)
@@ -63,7 +65,8 @@ void GDT::load(const GDTEntry *Gdt, size_t Size) {
   Gdtr.Limit = Size * sizeof(uint64_t) - 1;
   Gdtr.Base = reinterpret_cast<uint32_t>(GdtEntries);
 
-  asm volatile("lgdt %0" : : "m"(Gdtr));
+  asm volatile("lgdt %0" : : "rm"(Gdtr));
+  flush_lgdt();
 }
 
 void GDT::initialize() {

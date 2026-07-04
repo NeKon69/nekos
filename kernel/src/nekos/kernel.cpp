@@ -19,4 +19,6 @@ extern "C" void kernel_main() {
   GDT Gdt;
   kprintf("Hello how is your day?");
 #endif
+  while (1)
+    asm volatile("hlt");
 }
