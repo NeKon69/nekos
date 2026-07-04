@@ -5,8 +5,10 @@
 namespace tests {
 
 void runKprintfTests();
+void runGDTTests();
 
 void runAll() {
+  runGDTTests();
   runKprintfTests();
   summary();
 }
