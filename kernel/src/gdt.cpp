@@ -49,6 +49,7 @@ uint64_t GDT::buildEntry(const GDTEntry &Entry) {
 }
 
 void GDT::load(const GDTEntry *Gdt, size_t Size) {
+  Size = Size > 5 ? 5 : Size;
   for (size_t i = 0; i < Size; i++) {
     GdtEntries[i] = buildEntry(Gdt[i]);
   }
