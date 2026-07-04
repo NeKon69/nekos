@@ -24,7 +24,7 @@ jobs:
             clang-format
 
       - name: Check format
-        run: git clang-format --diff --quiet "origin/${{ github.base_ref }}" -- '*.cpp' '*.h' '*.hpp' '*.c'
+        run: git ls-files '*.cpp' '*.h' '*.hpp' '*.c' | xargs clang-format --dry-run -Werror
 
   debug:
     runs-on: ubuntu-latest
