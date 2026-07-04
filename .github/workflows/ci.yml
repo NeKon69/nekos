@@ -40,6 +40,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             binutils \
+            bochs \
+            bochs-term \
+            bochsbios \
             clang \
             cmake \
             g++-multilib \
@@ -51,6 +54,7 @@ jobs:
             lld \
             mtools \
             qemu-system-x86 \
+            vgabios \
             xorriso
 
       - name: Build debug

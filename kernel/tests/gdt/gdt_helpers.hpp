@@ -29,13 +29,14 @@ constexpr uint8_t Accessed = 0x01;
 constexpr uint8_t Size32 = 0x04;
 constexpr uint8_t Granularity4K = 0x08;
 
-constexpr uint8_t KernelCodeAccess = Present | CodeData | Executable;
-constexpr uint8_t KernelDataAccess = Present | CodeData | Writable;
+constexpr uint8_t KernelCodeAccess =
+    Present | CodeData | Executable | Writable | Accessed;
+constexpr uint8_t KernelDataAccess = Present | CodeData | Writable | Accessed;
 constexpr uint8_t FlatSegmentFlags = Size32 | Granularity4K;
 
 constexpr uint64_t NullEntry = 0x0000000000000000;
-constexpr uint64_t KernelCodeEntry = 0x00CF98000000FFFF;
-constexpr uint64_t KernelDataEntry = 0x00CF92000000FFFF;
+constexpr uint64_t KernelCodeEntry = 0x00CF9B000000FFFF;
+constexpr uint64_t KernelDataEntry = 0x00CF93000000FFFF;
 
 constexpr uint32_t FlatSegmentLimit = 0xFFFFF;
 constexpr uint32_t FlatSegmentBase = 0;

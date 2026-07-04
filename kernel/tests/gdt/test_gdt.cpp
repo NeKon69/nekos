@@ -19,7 +19,7 @@ void test_gdt_loads_expected_descriptor() {
   NEKOS_EXPECT_GDTR_LIMIT(3 * sizeof(uint64_t) - 1);
   NEKOS_EXPECT_GDT_ENTRY(0, tests::gdt::NullEntry);
   NEKOS_EXPECT_GDT_ENTRY(1, tests::gdt::KernelCodeEntry);
-  NEKOS_EXPECT_GDT_ENTRY_ACCESSED(2);
+  NEKOS_EXPECT_GDT_ENTRY(2, tests::gdt::KernelDataEntry);
 }
 
 void test_gdt_build_entry_encodes_null_descriptor() {
@@ -43,7 +43,7 @@ void test_gdt_build_entry_encodes_kernel_data_descriptor() {
 void test_gdt_build_entry_encodes_base_and_limit_bits() {
   NEKOS_EXPECT_TRUE(
       buildEntry(0xABCDE, 0x12345678, tests::gdt::KernelCodeAccess,
-                 tests::gdt::FlatSegmentFlags) == 0x12CA98345678BCDE);
+                 tests::gdt::FlatSegmentFlags) == 0x12CA9B345678BCDE);
 }
 
 namespace tests {

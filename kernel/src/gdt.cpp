@@ -65,7 +65,7 @@ void GDT::load(const GDTEntry *Gdt, size_t Size) {
   Gdtr.Limit = Size * sizeof(uint64_t) - 1;
   Gdtr.Base = reinterpret_cast<uint32_t>(GdtEntries);
 
-  asm volatile("lgdt %0" : : "rm"(Gdtr));
+  asm volatile("lgdt %0" : : "m"(Gdtr));
   flush_lgdt();
 }
 
@@ -81,15 +81,17 @@ void GDT::initialize() {
   // Code segment
   Entries[1].Limit = 0xFFFFF;
   Entries[1].Base = 0;
-  Entries[1].AccessByte = gdtSystem(true) | gdtPresent(true) |
-                          gdtExecutable(true) | gdtPrivilege(0);
+  Entries[1].AccessByte = gdtAccessed(true) | gdtSystem(true) |
+                          gdtPresent(true) | gdtExecutable(true) |
+                          gdtReadWrite(true) | gdtPrivilege(0);
   Entries[1].Flags = gdtSize(true) | gdtGranularity(true);
 
   // Data segment
   Entries[2].Limit = 0xFFFFF;
   Entries[2].Base = 0;
-  Entries[2].AccessByte =
-      gdtSystem(true) | gdtPresent(true) | gdtReadWrite(true) | gdtPrivilege(0);
+  Entries[2].AccessByte = gdtAccessed(true) | gdtSystem(true) |
+                          gdtPresent(true) | gdtReadWrite(true) |
+                          gdtPrivilege(0);
   Entries[2].Flags = gdtSize(true) | gdtGranularity(true);
 
   load(Entries, 3);

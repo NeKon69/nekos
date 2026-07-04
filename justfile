@@ -35,6 +35,7 @@ test: build
     set -euo pipefail
     if [ "{{profile}}" = "Debug" ] || [ "{{profile}}" = "RelWithDebInfo" ]; then
         scripts/qemu-kernel-test.sh "{{profile}}" "{{name}}"
+        scripts/bochs-kernel-test.sh "{{profile}}" "{{name}}"
     fi
     cd "{{build_dir}}" && ctest -C "{{profile}}" --output-on-failure
 
