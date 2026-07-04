@@ -57,6 +57,21 @@ jobs:
             vgabios \
             xorriso
 
+      - name: Pin Bochs firmware to upstream 3.0
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y rpm2cpio cpio
+          curl -fsSL -o /tmp/bochs-3.0.x86_64.rpm \
+            https://github.com/bochs-emu/Bochs/releases/download/REL_3_0_FINAL/bochs-3.0-1.x86_64.rpm
+          mkdir -p /tmp/bochs-3.0-rpm
+          cd /tmp/bochs-3.0-rpm
+          rpm2cpio /tmp/bochs-3.0.x86_64.rpm | cpio -idm --quiet
+          sudo mkdir -p /usr/share/bochs
+          sudo cp usr/share/bochs/BIOS-bochs-latest      /usr/share/bochs/BIOS-bochs-latest
+          sudo cp usr/share/bochs/VGABIOS-lgpl-latest.bin /usr/share/bochs/VGABIOS-lgpl-latest.bin
+          echo "1e06b47afbf096cb9e31ded959748e1078b8300dee068b33b98fa31955d26813  /usr/share/bochs/BIOS-bochs-latest"        | sha256sum -c
+          echo "c35ce32f2fc83cd72819e838d5b7c071a789d26cd3995c7ebb07f4f36c39d614  /usr/share/bochs/VGABIOS-lgpl-latest.bin" | sha256sum -c
+
       - name: Build debug
         run: just build
 
