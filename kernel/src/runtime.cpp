@@ -1,7 +1,7 @@
 using Constructor = void (*)();
 extern "C" {
-Constructor __init_array_start;
-Constructor __init_array_end;
+extern Constructor __init_array_start;
+extern Constructor __init_array_end;
 void init_global_objects() {
   Constructor *C = &__init_array_start;
   if (!C || C >= &__init_array_end)

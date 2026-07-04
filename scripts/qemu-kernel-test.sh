@@ -9,17 +9,12 @@ build_dir="build_${profile}"
 iso_path="${build_dir}/${name}.iso"
 serial_log="${build_dir}/kernel-test-serial.log"
 
-if [[ ! -f "${iso_path}" ]]; then
-    printf 'Missing ISO: %s\n' "${iso_path}" >&2
-    exit 1
-fi
+# shellcheck source=kernel-test-common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/kernel-test-common.sh"
+
+[[ -f "${iso_path}" ]] || die "Missing ISO: ${iso_path}"
 
 rm -f "${serial_log}"
-
-printf 'Kernel QEMU tests\n'
-printf '  ISO:        %s\n' "${iso_path}"
-printf '  Serial log: %s\n' "${serial_log}"
-printf '  Timeout:    %ss\n' "${timeout_seconds}"
 
 qemu-system-i386 \
     -cdrom "${iso_path}" \
@@ -29,7 +24,12 @@ qemu-system-i386 \
     -no-shutdown &
 
 qemu_pid=$!
-printf '  QEMU PID:   %s\n' "${qemu_pid}"
+
+info_box "Kernel QEMU tests" \
+    "ISO|${iso_path}" \
+    "Serial log|${serial_log}" \
+    "Timeout|${timeout_seconds}s" \
+    "QEMU PID|${qemu_pid}"
 
 cleanup() {
     if kill -0 "${qemu_pid}" 2>/dev/null; then
@@ -44,25 +44,25 @@ deadline=$((SECONDS + timeout_seconds))
 
 while (( SECONDS < deadline )); do
     if ! kill -0 "${qemu_pid}" 2>/dev/null; then
-        printf 'Kernel QEMU tests stopped before reporting a result.\n' >&2
+        printf "${C_YELLOW}${C_BOLD}! Kernel QEMU tests stopped before reporting a result.${C_RESET}\n" >&2
         if [[ -f "${serial_log}" ]]; then
-            printf '\n--- serial log ---\n' >&2
+            printf "${C_DIM}\n  ── serial log ──${C_RESET}\n" >&2
             cat "${serial_log}" >&2
         else
-            printf 'Serial log was not created.\n' >&2
+            printf "${C_DIM}  Serial log was not created.${C_RESET}\n" >&2
         fi
         exit 1
     fi
 
     if [[ -f "${serial_log}" ]]; then
         if grep -q 'NEKOS ALL TESTS PASSED' "${serial_log}"; then
-            printf 'Kernel QEMU tests passed.\n'
+            printf "${C_GREEN}${C_BOLD}✓ Kernel QEMU tests passed.${C_RESET}\n"
             exit 0
         fi
 
         if grep -q 'NEKOS TESTS FAILED' "${serial_log}"; then
-            printf 'Kernel QEMU tests failed.\n' >&2
-            printf '\n--- serial log ---\n' >&2
+            printf "${C_RED}${C_BOLD}✗ Kernel QEMU tests failed.${C_RESET}\n" >&2
+            printf "${C_DIM}\n  ── serial log ──${C_RESET}\n" >&2
             cat "${serial_log}" >&2
             exit 1
         fi
@@ -71,11 +71,11 @@ while (( SECONDS < deadline )); do
     sleep 0.1
 done
 
-printf 'Kernel QEMU tests timed out after %s seconds.\n' "${timeout_seconds}" >&2
+printf "${C_YELLOW}${C_BOLD}⏱ Kernel QEMU tests timed out after %ss.${C_RESET}\n" "${timeout_seconds}" >&2
 if [[ -f "${serial_log}" ]]; then
-    printf '\n--- serial log ---\n' >&2
+    printf "${C_DIM}\n  ── serial log ──${C_RESET}\n" >&2
     cat "${serial_log}" >&2
 else
-    printf 'Serial log was not created.\n' >&2
+    printf "${C_DIM}  Serial log was not created.${C_RESET}\n" >&2
 fi
 exit 1
