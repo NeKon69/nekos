@@ -60,13 +60,13 @@ compile_commands.json
 *.su
 *.idb
 *.pdb
+*.pyc
 
 # Editor / local project state
 .cache/
 .idea/
 .vscode/
 .nvim/
-.opencode/
 .envsitter/
 run-review.sh
 review-prompt.md
@@ -89,6 +89,9 @@ tags
 
 # Environment / secrets
 .env
+
+# opencode dependencies
+.opencode/node_modules/
 local-review-bot.pem
 
 # Linux local files
