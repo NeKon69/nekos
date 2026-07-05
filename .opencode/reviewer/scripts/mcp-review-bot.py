@@ -147,17 +147,14 @@ def gh_api_paginate(endpoint: str) -> list:
             env=env, check=False, text=True, capture_output=True, timeout=120,
         )
         if proc.returncode != 0:
-            import sys
-            print(f"gh api {url} failed (returncode={proc.returncode}): {proc.stderr.strip()}", file=sys.stderr)
-            break
+            msg = proc.stderr.strip() or proc.stdout.strip() or f"gh api {url} failed"
+            raise RuntimeError(f"API error (returncode={proc.returncode}): {msg}")
         try:
             page_data = json.loads(proc.stdout)
         except json.JSONDecodeError:
-            break
+            raise RuntimeError(f"API returned non-JSON response: {proc.stdout.strip()[:200]}")
         if not isinstance(page_data, list):
-            if page == 1:
-                return page_data if isinstance(page_data, list) else []
-            break
+            raise RuntimeError(f"API returned non-list response: {type(page_data).__name__}")
         if not page_data:
             break
         results.extend(page_data)
@@ -297,7 +294,10 @@ def review_threads(pr_number: int) -> str:
     if not owner or not repo:
         return "error: could not detect GitHub repo (origin remote)"
 
-    comments = gh_api_paginate(f"repos/{owner}/{repo}/pulls/{pr_number}/comments")
+    try:
+        comments = gh_api_paginate(f"repos/{owner}/{repo}/pulls/{pr_number}/comments")
+    except RuntimeError as e:
+        return f"error fetching review threads for PR #{pr_number}: {e}"
     if not comments:
         return f"No review comments found on PR #{pr_number}."
 
