@@ -194,6 +194,9 @@ def _fetch_thread_resolved_state(owner: str, repo: str, pr_number: int) -> dict[
     if not isinstance(body, dict):
         return {}
     if "errors" in body:
+        errors = body["errors"]
+        if errors:
+            print(f"_fetch_thread_resolved_state: GraphQL errors: {json.dumps(errors)}", file=sys.stderr)
         return {}
 
     threads = (
