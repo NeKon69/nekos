@@ -21,7 +21,16 @@ file(GLOB_RECURSE KERNEL_ASM_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.S"
 )
 
-set(KERNEL_SOURCES ${KERNEL_CXX_SOURCES} ${KERNEL_ASM_SOURCES} ${KERNEL_TEST_SOURCES})
+set(IDT_VECTORS_FILE "${CMAKE_CURRENT_BINARY_DIR}/kernel/include/idt_vectors.inc")
+
+add_custom_command(OUTPUT ${IDT_VECTORS_FILE}
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/kernel/include"
+    COMMAND bash -c "printf 'X(%d) ' {0..255} > '${IDT_VECTORS_FILE}'"
+    COMMENT "Generating IDT vector list"
+    VERBATIM
+)
+
+set(KERNEL_SOURCES ${KERNEL_CXX_SOURCES} ${KERNEL_ASM_SOURCES} ${KERNEL_TEST_SOURCES} ${IDT_VECTORS_FILE})
 
 add_executable(kernel ${KERNEL_SOURCES})
 set_target_properties(kernel PROPERTIES
@@ -44,6 +53,7 @@ target_compile_options(kernel PRIVATE
 
 target_include_directories(kernel PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_BINARY_DIR}/kernel/include"
 )
 
 if(NEKOS_KERNEL_TESTS_EFFECTIVE)
