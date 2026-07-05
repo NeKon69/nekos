@@ -19,7 +19,6 @@ mcp = FastMCP("review-bot")
 
 _gh_token: str | None = None
 _token_expires: float = 0
-_app_token_refresh_lock = False
 
 
 def _b64(data: bytes) -> str:
@@ -95,7 +94,7 @@ def _ensure_token() -> str | None:
 def _gh_env() -> dict[str, str]:
     env = os.environ.copy()
     token = _ensure_token()
-    # If token_exchanged is truthy, we have an app token; set GH_TOKEN to it.
+    # If token is truthy, we have an app token; set GH_TOKEN to it.
     # If token is None but GH_APP_ID is set, the app auth failed — fall through.
     if token:
         env["GH_TOKEN"] = token
@@ -148,6 +147,8 @@ def gh_api_paginate(endpoint: str) -> list:
             env=env, check=False, text=True, capture_output=True, timeout=120,
         )
         if proc.returncode != 0:
+            import sys
+            print(f"gh api {url} failed (returncode={proc.returncode}): {proc.stderr.strip()}", file=sys.stderr)
             break
         try:
             page_data = json.loads(proc.stdout)
