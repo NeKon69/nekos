@@ -41,6 +41,9 @@ compile_commands.json
 *.gch
 *.pch
 
+# Generated include files
+*.inc
+
 # Kernel / OS-dev artifacts
 *.elf
 *.iso
