@@ -5,6 +5,7 @@ import os
 import pathlib
 import re
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -49,7 +50,9 @@ def _gh_api_jwt(jwt: str, method: str, path: str, body: bytes | None = None) -> 
     try:
         resp = urllib.request.urlopen(req, timeout=30)
         return json.loads(resp.read())
-    except urllib.error.HTTPError:
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")[:200]
+        print(f"_gh_api_jwt: HTTP {e.code} on {method} {path}: {body}", file=sys.stderr)
         return None
 
 
@@ -162,7 +165,81 @@ def gh_api_paginate(endpoint: str) -> list:
     return results
 
 
-def _format_review_threads(pr_number: int, comments: list) -> str:
+def _fetch_thread_resolved_state(owner: str, repo: str, pr_number: int) -> dict[str, tuple[bool, bool]]:
+    """Fetch isResolved and isOutdated per review thread via GraphQL.
+
+    Returns a dict mapping comment node_id -> (isResolved, isOutdated).
+    Returns empty dict on error.
+    """
+    query = """query {
+      repository(owner: "%s", name: "%s") {
+        pullRequest(number: %d) {
+          reviewThreads(first: 50) {
+            nodes {
+              isResolved
+              isOutdated
+              comments(first: 10) {
+                nodes { id }
+              }
+            }
+          }
+        }
+      }
+    }""" % (owner, repo, pr_number)
+
+    result = gh_api("POST", "graphql", {"query": query})
+    if "error" in result:
+        return {}
+    body = result.get("data", {})
+    if not isinstance(body, dict):
+        return {}
+    if "errors" in body:
+        return {}
+
+    threads = (
+        body.get("data", {})
+        .get("repository", {})
+        .get("pullRequest", {})
+        .get("reviewThreads", {})
+        .get("nodes", [])
+    )
+
+    resolved_map = {}
+    for thread in threads:
+        is_resolved = thread.get("isResolved", False)
+        is_outdated = thread.get("isOutdated", False)
+        for c in thread.get("comments", {}).get("nodes", []):
+            nid = c.get("id")
+            if nid:
+                resolved_map[nid] = (is_resolved, is_outdated)
+    return resolved_map
+
+
+def _trim_diff_hunk(diff_hunk: str, start_line: int, end_line: int, context: int = 3) -> str:
+    """Trim a diff hunk to show only lines around start_line–end_line (new-file side)."""
+    lines = diff_hunk.splitlines()
+    header_match = re.match(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@", lines[0]) if lines else None
+    if not header_match:
+        return diff_hunk
+    new_start = int(header_match.group(1))
+    wanted = range(start_line - context, end_line + context + 1)
+    kept = [lines[0]]
+    cur = new_start
+    for line in lines[1:]:
+        if line.startswith("---"):
+            continue
+        if line.startswith("+") or line.startswith(" "):
+            if cur in wanted:
+                kept.append(line)
+            cur += 1
+        elif line.startswith("-"):
+            kept.append(line)
+    if len(kept) <= 1:
+        return diff_hunk
+    return "\n".join(kept)
+
+
+def _format_review_threads(pr_number: int, comments: list, resolved_map: dict | None = None) -> str:
     roots = {}
     replies = {}
     for c in comments:
@@ -190,14 +267,45 @@ def _format_review_threads(pr_number: int, comments: list) -> str:
         body = c.get("body", "")
         created = c.get("created_at", "")
         reactions = c.get("reactions", {})
+        node_id = c.get("node_id", "")
 
         loc = f"{path}:{line}" if path else "(no file)"
+
+        state_tag = ""
+        if resolved_map and node_id in resolved_map:
+            is_resolved, is_outdated = resolved_map[node_id]
+            parts = []
+            if is_resolved:
+                parts.append("Resolved")
+            if is_outdated:
+                parts.append("Outdated")
+            if parts:
+                state_tag = f" [{' + '.join(parts)}]"
+
         lines.append("")
-        lines.append(f"### Thread {thread_num}: {user} — {loc}")
+        lines.append(f"### Thread {thread_num}: {user} — {loc}{state_tag}")
         lines.append(f"Comment ID: {cid}")
         lines.append(f"Author: {user}")
         lines.append(f"Created: {created}")
         lines.append(f"Reactions: {reactions.get('summary', {}).get('total_count', 0) if isinstance(reactions, dict) else 'N/A'}")
+
+        diff_hunk = c.get("diff_hunk", "")
+        if diff_hunk:
+            sl = c.get("start_line") or c.get("original_start_line") or 0
+            el = c.get("line") or c.get("original_line") or 0
+            if not sl:
+                sl = el
+            if sl and el:
+                diff_hunk = _trim_diff_hunk(diff_hunk, sl, el)
+            diff_hunk = diff_hunk.rstrip()
+            lines.append("")
+            lines.append("Reviewed code:")
+            lines.append("")
+            lines.append("```diff")
+            for hl in diff_hunk.split("\n"):
+                lines.append(hl)
+            lines.append("```")
+
         lines.append("")
         for bl in body.strip().split("\n"):
             lines.append(f"> {bl}")
@@ -301,7 +409,8 @@ def review_threads(pr_number: int) -> str:
     if not comments:
         return f"No review comments found on PR #{pr_number}."
 
-    return _format_review_threads(pr_number, comments)
+    resolved_map = _fetch_thread_resolved_state(owner, repo, pr_number)
+    return _format_review_threads(pr_number, comments, resolved_map)
 
 
 @mcp.tool()
