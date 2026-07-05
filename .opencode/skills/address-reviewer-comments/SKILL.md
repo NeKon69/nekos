@@ -1,8 +1,7 @@
 ---
+name: address-reviewer-comments
 description: Refactoring etiquette when applying reviewer or PR feedback; cast conventions; preserving file headers; not over-editing.
 ---
-
-# address-reviewer-comments
 
 Applies when the user asks you to "address codex's review / the comments on the PR", "apply
 the review feedback", "fix the reviewer notes", etc.

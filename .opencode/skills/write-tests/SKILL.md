@@ -1,8 +1,7 @@
 ---
+name: write-tests
 description: Writing libc or kernel tests against a spec; tests for strcpy/itoa/kprintf/etc.
 ---
-
-# write-tests
 
 Applies when the user asks you to write tests for a libc function or a kernel module. Two
 tiers exist; both obey the same durable rules.

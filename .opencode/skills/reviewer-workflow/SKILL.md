@@ -1,8 +1,7 @@
 ---
+name: reviewer-workflow
 description: Reviewer agent etiquette, MCP tool usage, approve thresholds, reading prior threads, replying to author.
 ---
-
-# reviewer-workflow
 
 Applies only when this session is the `reviewer` agent. The baseline lives in `AGENTS.md`
 section 11; this file holds the deeper detail.
