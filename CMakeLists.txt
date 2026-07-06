@@ -28,6 +28,7 @@ set(KERNEL_C_FLAGS
     -ffreestanding
     -fno-builtin
     -fno-stack-protector
+    -fno-strict-aliasing
     -mno-sse
     -mno-sse2
     -mno-mmx
