@@ -29,14 +29,15 @@ void IDT::initialize() {
 }
 
 void IDT::load(IDTEntry *Entries, uint16_t Count) {
-  for (size_t i = 0; i < Count; i++)
+  EntryCount = Count > 256 ? 256 : Count;
+  for (size_t i = 0; i < EntryCount; i++)
     IDTEntries[i] = *reinterpret_cast<uint64_t *>(&Entries[i]);
   struct IDTR {
     uint16_t Limit;
     uint32_t Base;
   } __attribute__((packed)) Idtr;
 
-  Idtr.Limit = Count * sizeof(uint64_t) - 1;
+  Idtr.Limit = EntryCount * sizeof(uint64_t) - 1;
   Idtr.Base = reinterpret_cast<uint32_t>(IDTEntries);
 
   asm volatile("lidt %0" : : "m"(Idtr));

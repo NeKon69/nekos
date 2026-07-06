@@ -16,7 +16,7 @@
 .section .bss
 .balign 16
 stack_bottom:
-// Increased from 16 KiB to 64 KiB after seeing how much memory IDT table takes up LOL.
+// Increased from 16 KiB to 64 KiB for safe measure.
 .skip 64 * 1024 /* 64 KiB */
 stack_top:
 
@@ -61,6 +61,7 @@ flush:
 .macro gen_stub
 .set i, i + 1
 .global isr_\@
+.type isr_\@, @function
 isr_\@:
     // For vectors 8, 10, 11, 12, 13, 14, 17, and 21, push only the interrupt number. (error code is already on the stack)
     .if i == 8 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 17 || i == 21
@@ -71,6 +72,7 @@ isr_\@:
         pushl $i
     .endif
     jmp idt_stub_common
+.size isr_\@, . - isr_\@
 .endm
 
 .rept 256 
@@ -78,6 +80,7 @@ isr_\@:
 .endr
 
 .global idt_stub_common
+.type idt_stub_common, @function
 idt_stub_common:
     pushal                  // save all general-purpose registers
     movw %ds, %ax
@@ -107,3 +110,4 @@ idt_stub_common:
 
     addl $8, %esp           // drop vector + error code
     iretl                   // pops eflags, cs, eip
+.size idt_stub_common, . - idt_stub_common

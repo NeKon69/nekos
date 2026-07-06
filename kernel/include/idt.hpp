@@ -22,5 +22,4 @@ private:
 
   void initialize();
   void load(IDTEntry *Idt, uint16_t Size);
-  static uint64_t buildEntry(const IDTEntry &Entry);
 };
