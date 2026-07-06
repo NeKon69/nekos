@@ -6,12 +6,11 @@
 
 drivers::VGA Vga;
 
-// Used for conversions.
-char Buffer[33];
-
 void kputs(const char *Char) { Vga.putString(Char); }
 
 void kprintf(const char *Str, ...) {
+  // Used for conversions.
+  char Buffer[33];
   va_list Args;
   va_start(Args, Str);
 

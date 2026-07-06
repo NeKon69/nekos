@@ -1,0 +1,78 @@
+#include "idt.hpp"
+#include "idt/idt_helper.hpp"
+#include "idt_handler.hpp"
+#include "test.hpp"
+
+#include <stdint.h>
+
+static bool callback_fired = false;
+static uint32_t callback_error_code = 0;
+static uint32_t callback_eip = 0;
+
+static void handler_255(const Registers *Regs) {
+  callback_fired = true;
+  callback_error_code = Regs->ErrorCode;
+  callback_eip = Regs->Eip;
+}
+
+void test_idt_loads_expected_limit() {
+  IDT Idt;
+  const tests::idt::IDTR Idtr = tests::idt::readIDTR();
+  NEKOS_EXPECT_TRUE(Idtr.Limit == 256 * sizeof(uint64_t) - 1);
+}
+
+void test_idt_loads_expected_base() {
+  IDT Idt;
+  const tests::idt::IDTR Idtr = tests::idt::readIDTR();
+  NEKOS_EXPECT_TRUE(Idtr.Base != 0);
+  NEKOS_EXPECT_TRUE(Idtr.Base % 8 == 0);
+}
+
+void test_idt_entries_are_valid() {
+  IDT Idt;
+  const tests::idt::IDTR Idtr = ::tests::idt::readIDTR();
+  for (size_t i = 0; i < 256; i++) {
+    const uint64_t Entry = tests::idt::entryAt(Idtr, i);
+    NEKOS_EXPECT_TRUE(tests::idt::entryOffset(Entry) != 0 &&
+                      tests::idt::entrySelector(Entry) == 0x08 &&
+                      tests::idt::entryType(Entry) == 0x8E);
+  }
+}
+
+void test_idt_callback_fires() {
+  IDT Idt;
+  callback_fired = false;
+  InterruptHandler::getInterruptHandler().setHandler(255, handler_255);
+  asm volatile("int $255");
+  NEKOS_EXPECT_TRUE(callback_fired);
+}
+
+void test_idt_callback_receives_zero_error_code() {
+  IDT Idt;
+  callback_error_code = 0;
+  InterruptHandler::getInterruptHandler().setHandler(255, handler_255);
+  asm volatile("int $255");
+  NEKOS_EXPECT_TRUE(callback_error_code == 0);
+}
+
+void test_idt_eip_is_correct() {
+  IDT Idt;
+  callback_eip = 0;
+  InterruptHandler::getInterruptHandler().setHandler(255, handler_255);
+  asm volatile("int $255");
+after_int:
+  NEKOS_EXPECT_TRUE(callback_eip == reinterpret_cast<uint32_t>(&&after_int));
+}
+
+namespace tests {
+
+void runIDTTests() {
+  test_idt_loads_expected_limit();
+  test_idt_loads_expected_base();
+  test_idt_entries_are_valid();
+  test_idt_callback_fires();
+  test_idt_callback_receives_zero_error_code();
+  test_idt_eip_is_correct();
+}
+
+} // namespace tests
