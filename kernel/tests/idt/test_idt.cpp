@@ -32,10 +32,6 @@ void test_idt_loads_expected_base() {
 void test_idt_entries_are_valid() {
   IDT Idt;
   for (size_t i = 0; i < 256; i++) {
-    uint64_t Entry = tests::idt::entryAt(tests::idt::readIDTR(), i);
-    kprintf("Entry %u: %x%x ", i, static_cast<uint32_t>(Entry >> 32),
-            static_cast<uint32_t>(Entry & 0xFFFF));
-
     NEKOS_EXPECT_IDT_ENTRY(i);
   }
 }
