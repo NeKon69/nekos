@@ -15,6 +15,7 @@ private:
     uint8_t Type;
     uint16_t OffsetHigh;
   } __attribute__((packed));
+  static_assert(sizeof(IDTEntry) == 8 && "IDTEntry size must be 8 bytes.");
 
   uint64_t IDTEntries[256];
   size_t EntryCount = 0;
