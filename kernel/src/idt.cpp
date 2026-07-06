@@ -14,7 +14,7 @@ constexpr uint8_t idtPresentBit() { return 1 << 7; }
 IDT::IDT() : Gdt() { initialize(); }
 
 void IDT::initialize() {
-  IDTEntry Entries[256];
+  alignas(8) IDTEntry Entries[256];
 
 #define X(n)                                                                   \
   Entries[n].OffsetLow = reinterpret_cast<uint32_t>(isr_##n) & 0xFFFF;         \
