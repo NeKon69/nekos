@@ -56,15 +56,15 @@ flush:
     ret
 .size flush_lgdt, . - flush_lgdt
 
-// generate stubs 0-31
+// generate stubs 0-255
 .set i, -1
 .macro gen_stub
 .set i, i + 1
 .global isr_\@
 .type isr_\@, @function
 isr_\@:
-    // For vectors 8, 10, 11, 12, 13, 14, 17, and 21, push only the interrupt number. (error code is already on the stack)
-    .if i == 8 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 17 || i == 21
+    // For vectors 8, 10, 11, 12, 13, 14, 17, push only the interrupt number. (error code is already on the stack)
+    .if i == 8 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 17
         pushl $i
     .else
     // For all other vectors, push 0 as the error code so stack is always in the same state.

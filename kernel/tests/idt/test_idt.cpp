@@ -1,14 +1,13 @@
 #include "idt.hpp"
 #include "idt/idt_helper.hpp"
 #include "idt_handler.hpp"
-#include "nekos/kprintf.hpp"
 #include "test.hpp"
 
 #include <stdint.h>
 
-bool callback_fired = false;
-uint32_t callback_error_code = 0;
-uint32_t callback_eip = 0;
+static bool callback_fired = false;
+static uint32_t callback_error_code = 0;
+static uint32_t callback_eip = 0;
 
 static void handler_255(const Registers *Regs) {
   callback_fired = true;
@@ -31,8 +30,12 @@ void test_idt_loads_expected_base() {
 
 void test_idt_entries_are_valid() {
   IDT Idt;
+  const tests::idt::IDTR Idtr = ::tests::idt::readIDTR();
   for (size_t i = 0; i < 256; i++) {
-    NEKOS_EXPECT_IDT_ENTRY(i);
+    const uint64_t Entry = tests::idt::entryAt(Idtr, i);
+    NEKOS_EXPECT_TRUE(tests::idt::entryOffset(Entry) != 0 &&
+                      tests::idt::entrySelector(Entry) == 0x08 &&
+                      tests::idt::entryType(Entry) == 0x8E);
   }
 }
 

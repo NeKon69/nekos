@@ -35,12 +35,3 @@ constexpr uint8_t entryType(uint64_t Entry) {
 }
 
 } // namespace tests::idt
-
-#define NEKOS_EXPECT_IDT_ENTRY(Index)                                          \
-  do {                                                                         \
-    const ::tests::idt::IDTR Idtr = ::tests::idt::readIDTR();                  \
-    const uint64_t Entry = ::tests::idt::entryAt(Idtr, Index);                 \
-    NEKOS_EXPECT_TRUE(::tests::idt::entryOffset(Entry) != 0 &&                 \
-                      ::tests::idt::entrySelector(Entry) == 0x08 &&            \
-                      ::tests::idt::entryType(Entry) == 0x8E);                 \
-  } while (false)
