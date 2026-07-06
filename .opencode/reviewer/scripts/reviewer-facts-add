@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+import argparse
+import datetime as dt
+import hashlib
+import json
+import pathlib
+import re
+import sys
+
+
+ROOT = pathlib.Path(__file__).resolve().parents[3]
+FACTS = ROOT / ".opencode" / "reviewer" / "knowledge" / "facts.jsonl"
+VALID_KINDS = {"invariant", "testing", "workflow", "gotcha", "relationship", "tooling"}
+KIND_ALIASES = {
+    "subsystem-invariant": "invariant",
+    "subsystem_invariant": "invariant",
+    "test": "testing",
+    "tests": "testing",
+    "workflow-gotcha": "gotcha",
+}
+
+
+def split_csv(values):
+    result = []
+    for value in values or []:
+        for item in value.split(","):
+            item = item.strip()
+            if item:
+                result.append(item)
+    return result
+
+
+def normalize_kind(kind):
+    kind = kind.strip().lower()
+    return KIND_ALIASES.get(kind, kind)
+
+
+def slug(text):
+    text = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return text[:48] or "fact"
+
+
+def make_id(fact):
+    seed = "\n".join(
+        [
+            fact["kind"],
+            " ".join(fact["subsystems"]),
+            " ".join(fact["files"]),
+            " ".join(fact["symbols"]),
+            fact["fact"],
+        ]
+    )
+    digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:8]
+    prefix = slug("-".join(fact["subsystems"][:3]) or fact["kind"])
+    return f"{prefix}-{digest}"
+
+
+def existing_ids():
+    ids = set()
+    if not FACTS.exists():
+        return ids
+    with FACTS.open(encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                value = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if value.get("id"):
+                ids.add(value["id"])
+    return ids
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Append one durable reviewer fact as JSONL.")
+    parser.add_argument("--kind", required=True, help="One of: invariant, testing, workflow, gotcha, relationship, tooling")
+    parser.add_argument("--subsystem", action="append", default=[], help="Subsystem, repeatable or comma-separated")
+    parser.add_argument("--file", action="append", default=[], help="Relevant path, repeatable or comma-separated")
+    parser.add_argument("--symbol", action="append", default=[], help="Relevant symbol/test/diagnostic, repeatable or comma-separated")
+    parser.add_argument("--alias", action="append", default=[], help="Natural-language search alias, repeatable or comma-separated")
+    parser.add_argument("--fact", required=True, help="Reusable non-obvious fact")
+    parser.add_argument("--review-use", action="append", required=True, help="How future reviewers should use it")
+    parser.add_argument("--evidence", action="append", required=True, help="Why this fact is trusted")
+    parser.add_argument("--id", help="Optional stable id")
+    parser.add_argument("--created-by", default="reviewer")
+    args = parser.parse_args()
+
+    kind = normalize_kind(args.kind)
+    if kind not in VALID_KINDS:
+        print(
+            "error: --kind must be one of: " + ", ".join(sorted(VALID_KINDS)),
+            file=sys.stderr,
+        )
+        return 2
+
+    fact = {
+        "kind": kind,
+        "subsystems": split_csv(args.subsystem),
+        "files": split_csv(args.file),
+        "symbols": split_csv(args.symbol),
+        "aliases": split_csv(args.alias),
+        "fact": args.fact.strip(),
+        "review_uses": [item.strip() for item in args.review_use if item.strip()],
+        "evidence": [item.strip() for item in args.evidence if item.strip()],
+        "created_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d"),
+        "created_by": args.created_by,
+    }
+
+    if not fact["subsystems"] and not fact["files"] and not fact["symbols"] and not fact["aliases"]:
+        print("error: provide at least one subsystem, file, symbol, or alias", file=sys.stderr)
+        return 2
+    if len(fact["fact"]) < 20:
+        print("error: --fact is too short to be useful", file=sys.stderr)
+        return 2
+
+    fact["id"] = args.id or make_id(fact)
+    ids = existing_ids()
+    if fact["id"] in ids:
+        print(f"error: fact id already exists: {fact['id']}", file=sys.stderr)
+        return 2
+
+    FACTS.parent.mkdir(parents=True, exist_ok=True)
+    with FACTS.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(fact, sort_keys=True) + "\n")
+    print(f"added reviewer fact: {fact['id']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

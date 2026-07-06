@@ -1,0 +1,352 @@
+#!/usr/bin/env bash
+# Usage: kernel-compile-test [--timeout seconds] [--dry-run] [--clean] <source_file> [output_name]
+#
+# Builds a temporary kernel-test ISO containing <source_file>, runs it under
+# QEMU, and prints the serial test log. The source file must define:
+#
+#   namespace tests { void runReviewBotTests(); }
+#
+# Use NEKOS_EXPECT_TRUE and other kernel test helpers from test.hpp inside that
+# function. Call tests::log("message\n") to write progress messages to the
+# serial log during the test run; kprintf() writes to VGA and will not appear in
+# this tool's serial output. Existing repository test entrypoints are not
+# compiled or run.
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+
+usage() {
+  sed -n '2,13p' "$0" >&2
+}
+
+TIMEOUT_SECONDS="${KERNEL_COMPILE_TEST_TIMEOUT:-10}"
+DRY_RUN=0
+CLEAN_ON_SUCCESS="${KERNEL_COMPILE_TEST_CLEAN:-0}"
+POSITIONAL=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --timeout)
+      if [[ $# -lt 2 ]]; then
+        printf 'error: --timeout requires a value\n' >&2
+        usage
+        exit 2
+      fi
+      TIMEOUT_SECONDS="$2"
+      shift 2
+      ;;
+    --timeout=*)
+      TIMEOUT_SECONDS="${1#--timeout=}"
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --clean)
+      CLEAN_ON_SUCCESS=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      while [[ $# -gt 0 ]]; do
+        POSITIONAL+=("$1")
+        shift
+      done
+      ;;
+    -*)
+      printf 'error: unknown option: %s\n' "$1" >&2
+      usage
+      exit 2
+      ;;
+    *)
+      POSITIONAL+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [[ ${#POSITIONAL[@]} -lt 1 || ${#POSITIONAL[@]} -gt 2 ]]; then
+  printf 'error: expected <source_file> [output_name]\n' >&2
+  usage
+  exit 2
+fi
+
+if ! [[ "$TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]]; then
+  printf 'error: timeout must be a positive integer: %s\n' "$TIMEOUT_SECONDS" >&2
+  exit 2
+fi
+
+SRC="${POSITIONAL[0]}"
+SRC="$(realpath "$SRC")"
+
+if [[ ! -f "$SRC" ]]; then
+  printf 'Missing source file: %s\n' "$SRC" >&2
+  exit 1
+fi
+
+if [[ ${#POSITIONAL[@]} -ge 2 && -n "${POSITIONAL[1]:-}" ]]; then
+  OUT="${POSITIONAL[1]}"
+else
+  OUT="$(basename "$SRC")"
+  OUT="${OUT%.*}"
+fi
+
+SAFE_OUT="$(printf '%s' "$OUT" | tr -c 'A-Za-z0-9_.-' '_')"
+if [[ -z "$SAFE_OUT" ]]; then
+  printf 'Invalid output name: %s\n' "$OUT" >&2
+  exit 1
+fi
+
+RUN_DIR="/tmp/opencode/${SAFE_OUT}-kernel-qemu"
+SRC_ROOT="${RUN_DIR}/src"
+BUILD_DIR="${RUN_DIR}/build"
+BUILD_LOG="${RUN_DIR}/build.log"
+ISO_DIR="${BUILD_DIR}/iso"
+ISO_PATH="${BUILD_DIR}/nekos.iso"
+SERIAL_LOG="${BUILD_DIR}/kernel-test-serial.log"
+
+mkdir -p /tmp/opencode
+rm -rf "$RUN_DIR"
+mkdir -p "$SRC_ROOT"
+
+cp -a "$ROOT_DIR/CMakeLists.txt" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/cmake" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/grub.cfg" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/kernel" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/libc" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/libcxx" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/linker.ld" "$SRC_ROOT/"
+cp -a "$ROOT_DIR/third_party" "$SRC_ROOT/"
+
+find "$SRC_ROOT/kernel/tests" -type f \( -name 'test_*.cpp' -o -name 'test_*.cc' \) -delete
+{
+  printf '#line 1 "%s"\n' "$SRC"
+  cat "$SRC"
+} >"$SRC_ROOT/kernel/tests/review_bot_${SAFE_OUT}.cpp"
+
+python3 - "$SRC_ROOT/kernel/tests/test.hpp" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+if "void log(const char *Message);" not in text:
+    text = text.replace("void summary();", "void summary();\nvoid log(const char *Message);", 1)
+path.write_text(text)
+PY
+
+cat >"$SRC_ROOT/kernel/tests/test.cpp" <<'CPP'
+#include "test.hpp"
+
+#include <stdlib.h>
+
+namespace tests {
+
+void runReviewBotTests();
+
+void runAll() {
+  runReviewBotTests();
+  summary();
+}
+
+static drivers::Serial *Reporter = nullptr;
+static TestState State = {0, 0};
+
+static void write(const char *Str) {
+  if (Reporter == nullptr)
+    return;
+  Reporter->putString(Str);
+}
+
+static void writeUnsigned(size_t Value) {
+  char Buffer[32];
+  utoa(static_cast<uint32_t>(Value), Buffer, 10);
+  write(Buffer);
+}
+
+void init(drivers::Serial &Serial) {
+  Reporter = &Serial;
+  State = {0, 0};
+  write("NEKOS TEST BEGIN\n");
+}
+
+void log(const char *Message) { write(Message); }
+
+void summary() {
+  write("NEKOS TEST SUMMARY passed=");
+  writeUnsigned(State.Passed);
+  write(" failed=");
+  writeUnsigned(State.Failed);
+  write("\n");
+
+  if (State.Passed == 0 && State.Failed == 0) {
+    write("NEKOS NO TESTS RUN\n");
+    write("NEKOS TESTS FAILED\n");
+  } else if (State.Failed == 0)
+    write("NEKOS ALL TESTS PASSED\n");
+  else
+    write("NEKOS TESTS FAILED\n");
+}
+
+void pass() { State.Passed++; }
+
+void fail(const char *Expression, const char *File, unsigned Line) {
+  State.Failed++;
+  write("NEKOS TEST FAIL ");
+  write(File);
+  write(":");
+  writeUnsigned(Line);
+  write(" ");
+  write(Expression);
+  write("\n");
+}
+
+bool expectTrue(bool Condition, const char *Expression, const char *File,
+                unsigned Line) {
+  if (Condition) {
+    pass();
+    return true;
+  }
+
+  fail(Expression, File, Line);
+  return false;
+}
+
+const TestState &state() { return State; }
+
+} // namespace tests
+CPP
+
+printf 'Kernel QEMU compile test\n'
+printf '  Source:     %s\n' "$SRC"
+printf '  Output:     %s\n' "$SAFE_OUT"
+printf '  Work dir:   %s\n' "$RUN_DIR"
+printf '  Build log:  %s\n' "$BUILD_LOG"
+printf '  Timeout:    %ss\n' "$TIMEOUT_SECONDS"
+printf '  Clean:      %s\n' "$CLEAN_ON_SUCCESS"
+
+if [[ "$DRY_RUN" == 1 ]]; then
+  printf 'Dry run only; generated temporary source tree but did not build or run QEMU.\n'
+  printf '\nWould run:\n'
+  printf '  cmake -S %q -B %q -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF\n' "$SRC_ROOT" "$BUILD_DIR"
+  printf '  cmake --build %q --target kernel\n' "$BUILD_DIR"
+  printf '  grub-file --is-x86-multiboot %q\n' "$BUILD_DIR/nekos.elf"
+  printf '  grub-mkrescue -o %q %q\n' "$ISO_PATH" "$ISO_DIR"
+  printf '  qemu-system-i386 -cdrom %q -serial %q -display none -no-reboot -no-shutdown\n' "$ISO_PATH" "file:${SERIAL_LOG}"
+  exit 0
+fi
+
+if cmake -S "$SRC_ROOT" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF >"$BUILD_LOG" 2>&1; then
+  :
+else
+  rc=$?
+  printf 'CMake configure failed with exit code %s\n' "$rc" >&2
+  printf '\n--- build log ---\n' >&2
+  cat "$BUILD_LOG" >&2
+  exit $rc
+fi
+
+if cmake --build "$BUILD_DIR" --target kernel >>"$BUILD_LOG" 2>&1; then
+  :
+else
+  rc=$?
+  printf 'Kernel build failed with exit code %s\n' "$rc" >&2
+  printf '\n--- build log ---\n' >&2
+  cat "$BUILD_LOG" >&2
+  exit $rc
+fi
+
+if grub-file --is-x86-multiboot "$BUILD_DIR/nekos.elf" >>"$BUILD_LOG" 2>&1; then
+  :
+else
+  rc=$?
+  printf 'Built kernel is not multiboot-compatible\n' >&2
+  printf '\n--- build log ---\n' >&2
+  cat "$BUILD_LOG" >&2
+  exit $rc
+fi
+
+rm -rf "$ISO_DIR"
+mkdir -p "$ISO_DIR/boot/grub"
+cp "$BUILD_DIR/nekos.elf" "$ISO_DIR/boot/nekos"
+cp "$SRC_ROOT/grub.cfg" "$ISO_DIR/boot/grub/grub.cfg"
+
+if grub-mkrescue -o "$ISO_PATH" "$ISO_DIR" >>"$BUILD_LOG" 2>&1; then
+  :
+else
+  rc=$?
+  printf 'ISO creation failed with exit code %s\n' "$rc" >&2
+  printf '\n--- build log ---\n' >&2
+  cat "$BUILD_LOG" >&2
+  exit $rc
+fi
+
+rm -f "$SERIAL_LOG"
+qemu-system-i386 \
+  -cdrom "$ISO_PATH" \
+  -serial "file:${SERIAL_LOG}" \
+  -display none \
+  -no-reboot \
+  -no-shutdown >>"$BUILD_LOG" 2>&1 &
+
+QEMU_PID=$!
+printf '  QEMU PID:   %s\n' "$QEMU_PID"
+
+cleanup() {
+  if kill -0 "$QEMU_PID" 2>/dev/null; then
+    kill "$QEMU_PID" 2>/dev/null || true
+    wait "$QEMU_PID" 2>/dev/null || true
+  fi
+}
+
+trap cleanup EXIT INT TERM
+
+deadline=$((SECONDS + TIMEOUT_SECONDS))
+
+while (( SECONDS < deadline )); do
+  if ! kill -0 "$QEMU_PID" 2>/dev/null; then
+    printf 'Kernel QEMU test stopped before reporting a result.\n' >&2
+    if [[ -f "$SERIAL_LOG" ]]; then
+      printf '\n--- serial log ---\n' >&2
+      cat "$SERIAL_LOG" >&2
+    else
+      printf 'Serial log was not created.\n' >&2
+    fi
+    exit 1
+  fi
+
+  if [[ -f "$SERIAL_LOG" ]]; then
+    if grep -q 'NEKOS ALL TESTS PASSED' "$SERIAL_LOG"; then
+      printf 'Kernel QEMU test passed.\n'
+      printf '\n--- serial log ---\n'
+      cat "$SERIAL_LOG"
+      if [[ "$CLEAN_ON_SUCCESS" == 1 ]]; then
+        rm -rf "$RUN_DIR"
+      fi
+      exit 0
+    fi
+
+    if grep -q 'NEKOS TESTS FAILED' "$SERIAL_LOG"; then
+      printf 'Kernel QEMU test failed.\n' >&2
+      printf '\n--- serial log ---\n' >&2
+      cat "$SERIAL_LOG" >&2
+      exit 1
+    fi
+  fi
+
+  sleep 0.1
+done
+
+printf 'Kernel QEMU test timed out after %s seconds.\n' "$TIMEOUT_SECONDS" >&2
+if [[ -f "$SERIAL_LOG" ]]; then
+  printf '\n--- serial log ---\n' >&2
+  cat "$SERIAL_LOG" >&2
+else
+  printf 'Serial log was not created.\n' >&2
+fi
+exit 1
