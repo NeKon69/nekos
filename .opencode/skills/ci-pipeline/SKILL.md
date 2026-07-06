@@ -1,8 +1,7 @@
 ---
+name: ci-pipeline
 description: .github/workflows, CI jobs, clang-version gating in CI, dual-emulator CI, link errors in CI runners.
 ---
-
-# ci-pipeline
 
 Applies when the user asks to add/fix CI, you're touching `.github/workflows/`, or a CI run
 failed with a flag/linker/attribute error that didn't fail locally.

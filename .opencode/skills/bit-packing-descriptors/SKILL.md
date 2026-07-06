@@ -1,8 +1,7 @@
 ---
+name: bit-packing-descriptors
 description: GDT/IDT descriptor encoding, constexpr bit-packing helpers, shift-overflow, shared-bit conflicts.
 ---
-
-# bit-packing-descriptors
 
 Applies when the user is writing GDT or IDT descriptor entry encoding helpers, or hits a
 `-Wshift-count-overflow` / `-Wconstant-conversion` warning in one of those helpers.

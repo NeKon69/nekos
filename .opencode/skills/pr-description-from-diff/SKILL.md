@@ -1,8 +1,7 @@
 ---
+name: pr-description-from-diff
 description: Generating PR title and description from a diff; following existing PR style; resolving rebase conflicts.
 ---
-
-# pr-description-from-diff
 
 Applies when the user asks you to "generate a description and name for this branch / commits /
 diff", "create a PR", or to write a PR title following repo style.

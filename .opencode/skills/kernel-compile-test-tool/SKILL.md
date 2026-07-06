@@ -1,8 +1,7 @@
 ---
+name: kernel-compile-test-tool
 description: Semantics of review-bot_kernel_compile_test, how to write and call the build-QEMU test tool, its parameters and limits.
 ---
-
-# kernel-compile-test-tool
 
 Applies when you (any agent, but usually the reviewer) call the `review-bot_kernel_compile_test`
 MCP tool, or when the user asks you to "test this snippet by compiling it", or to explore edge

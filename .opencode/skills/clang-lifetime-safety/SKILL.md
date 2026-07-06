@@ -1,10 +1,9 @@
 ---
+name: clang-lifetime-safety
 description: Clang trunk lifetime-safety flags, NEKOS_LIFETIMEBOUND macro gating, fexperimental-lifetime-safety-c, lifetimebound attribute.
 ---
 
-# clang-lifetime-safety
-
-Applies when the user asks to add/enabled/fix clang's experimental lifetime-safety warnings,
+Applies when the user asks to add/enable/fix clang's experimental lifetime-safety warnings,
 the `NEKOS_LIFETIMEBOUND` macro, `[[clang::lifetimebound]]` / `[[gsl::Pointer]]` /
 `[[gsl::Owner]]` / `[[clang::lifetime_capture_by(...)]]` attributes, or `-Wunknown-attributes`
 errors from those attributes on older clang.

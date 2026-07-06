@@ -1,8 +1,7 @@
 ---
+name: qemu-bochs-kernel-tests
 description: qemu and bochs kernel-test serial scripts, bochsrc discovery, running kernel tests under both emulators.
 ---
-
-# qemu-bochs-kernel-tests
 
 Applies when running kernel tests, debugging qemu/bochs serial output, fixing a kernel-test
 script, or chasing an emulator-only bug.

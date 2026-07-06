@@ -1,8 +1,7 @@
 ---
+name: neovim-debug-config
 description: .nvim debug schema, leader-be/bO/br mappings, predebug background script, project-local debug overrides.
 ---
-
-# neovim-debug-config
 
 Applies when the user asks you to touch the neovim debug setup, fix a `<leader>b*` mapping,
 or add a project-local debug override.
