@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 constexpr uint8_t idtInterruptGate = 0xE;
-constexpr uint8_t idtTrapGate = 0xF;
+[[maybe_unused]] constexpr uint8_t idtTrapGate = 0xF;
 
 constexpr uint8_t idtPrivilege(uint8_t Priv) { return (Priv & 0b11) << 5; }
 constexpr uint8_t idtPresentBit() { return 1 << 7; }

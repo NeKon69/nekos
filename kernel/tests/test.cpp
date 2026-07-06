@@ -6,9 +6,11 @@ namespace tests {
 
 void runKprintfTests();
 void runGDTTests();
+void runIDTTests();
 
 void runAll() {
   runGDTTests();
+  runIDTTests();
   runKprintfTests();
   summary();
 }

@@ -49,6 +49,7 @@ endforeach()
 
 target_compile_options(kernel PRIVATE
     "$<$<COMPILE_LANGUAGE:ASM>:--target=${KERNEL_TARGET}>"
+    "$<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>"
 )
 
 target_include_directories(kernel PRIVATE

@@ -21,9 +21,11 @@ constexpr uint8_t gdtPresent(bool Value) { return Value << 7; }
 // Flags helpers (bits 0-3 of the byte, maps to bits 52-55 of entry)
 
 /// \param Value available for OS use (CPU ignores this bit)
-constexpr uint8_t gdtAvailable(bool Value) { return Value << 0; }
+[[maybe_unused]] constexpr uint8_t gdtAvailable(bool Value) {
+  return Value << 0;
+}
 /// \param Value true = 64-bit segment (long mode)
-constexpr uint8_t gdtLong(bool Value) { return Value << 1; }
+[[maybe_unused]] constexpr uint8_t gdtLong(bool Value) { return Value << 1; }
 /// \param Value true = 32-bit segment, false = 16-bit segment
 constexpr uint8_t gdtSize(bool Value) { return Value << 2; }
 /// \param Value true = limit scaled by 4KB, false = limit in bytes

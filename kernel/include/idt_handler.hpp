@@ -17,16 +17,26 @@ struct Registers {
   uint32_t Eip;
   uint32_t Cs;
   uint32_t EFlags;
-};
+} __attribute__((packed));
+
+static_assert(sizeof(Registers) == 56,
+              "Registers struct size must match asm stack frame");
+
+extern "C" void idt_handler_stub(const Registers *Regs);
 
 class InterruptHandler {
 public:
-  InterruptHandler();
-  void handle(const Registers *Regs);
+  using HandlerFunc = void (*)(const Registers *);
+  void setHandler(uint8_t Vector, HandlerFunc Handler);
+  static InterruptHandler &getInterruptHandler();
 
 private:
-  void dumpRegisters(const Registers *Regs);
-  void halt();
-};
+  InterruptHandler();
+  void dumpRegisters(const Registers *Regs) const;
+  [[noreturn]] void halt();
+  void handle(const Registers *Regs);
 
-extern "C" void idt_handler_stub(const Registers *Regs);
+  friend void idt_handler_stub(const Registers *Regs);
+
+  HandlerFunc Handlers[256] = {};
+};

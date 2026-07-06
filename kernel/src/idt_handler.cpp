@@ -3,7 +3,7 @@
 
 InterruptHandler::InterruptHandler() {}
 
-void InterruptHandler::dumpRegisters(const Registers *Regs) {
+void InterruptHandler::dumpRegisters(const Registers *Regs) const {
   kprintf("\n===== EXCEPTION %u =====\n", Regs->Vector);
   kprintf("Error code: %u\n", Regs->ErrorCode);
   kprintf("EIP: 0x%x  CS: 0x%x  EFLAGS: 0x%x\n", Regs->Eip, Regs->Cs,
@@ -20,16 +20,24 @@ void InterruptHandler::halt() {
     asm volatile("hlt");
 }
 
+void InterruptHandler::setHandler(uint8_t Vector, HandlerFunc Handler) {
+  Handlers[Vector] = Handler;
+}
+
 void InterruptHandler::handle(const Registers *Regs) {
-  switch (Regs->Vector) {
-  case 3:
-    kprintf("int3"); // Purely for testing purposes.
-  default:
+  if (auto *Func = Handlers[Regs->Vector]) {
+    Func(Regs);
+  } else {
     dumpRegisters(Regs);
     halt();
   }
 }
 
-InterruptHandler IH;
+InterruptHandler &InterruptHandler::getInterruptHandler() {
+  static InterruptHandler IH;
+  return IH;
+}
 
-void idt_handler_stub(const Registers *Regs) { IH.handle(Regs); }
+void idt_handler_stub(const Registers *Regs) {
+  InterruptHandler::getInterruptHandler().handle(Regs);
+}
