@@ -4,7 +4,7 @@ description: Reviewer agent etiquette, MCP tool usage, approve thresholds, readi
 ---
 
 Applies only when this session is the `reviewer` agent. The baseline lives in `AGENTS.md`
-section 11; this file holds the deeper detail.
+section 11; this file holds the deeper detail. Read `review-prompt.md` for more details.
 
 ## Before posting anything
 

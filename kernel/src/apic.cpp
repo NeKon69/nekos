@@ -84,7 +84,7 @@ void APIC::readAPICMetadata() {
 
 // Heard that 0x0 is the most common and others are only needed in some advanced
 // cases, which is certainly not my case, prolly fine.
-constexpr uint8_t LVTDeliveryMode = 0x0 << 8;
+constexpr uint16_t LVTDeliveryMode = 0x0 << 8;
 // LVT always uses physical mode.
 constexpr uint16_t LVTDestinationMode = 0b0 << 11;
 constexpr uint16_t LVTPinPolarity(bool Low) { return Low << 13; }

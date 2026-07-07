@@ -12,9 +12,9 @@
 #endif
 
 extern "C" void kernel_main(Multiboot2Info *Info) {
+  IDT Idt;
 #if NEKOS_KERNEL_TESTS
   kprintf("Hello how is your day?\n");
-  IDT Idt;
   // Construct APIC.
   APIC::getAPIC(reinterpret_cast<Tag *>(reinterpret_cast<char *>(Info) +
                                         sizeof(Multiboot2Info)));
