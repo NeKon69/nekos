@@ -1,16 +1,33 @@
-// Declare constants for the multiboot header.
-.set ALIGN,     1<<0             /* align loaded modules on page boundaries */
-.set MEMINFO,   1<<1             /* provide memory map */
-.set FLAGS,     ALIGN | MEMINFO  /* this is the Multiboot 'flag' field */
-.set MAGIC,     0x1BADB002       /* 'magic number' lets bootloader find the header */
-.set CHECKSUM,  -(MAGIC + FLAGS) /* checksum of above, to prove we are multiboot */
+// Declare constants for the multiboot2 header.
+// https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Header-layout
+.set MAGIC, 0xE85250D6
+.set ARCHITECTURE, 0x0
+.set INFO_REQUEST_TYPE, 0x1
+.set INFO_REQUEST_SIZE, 0xC
+.set FLAGS, 0x0
+.set REQUEST_MEMORY_MAP, 0x6
+.set REQUEST_RSDP, 0xF
+.set TERMINATOR_TYPE, 0x0
+.set TERMINATOR_SIZE, 0x8
 
-// Declare a header as in the Multiboot Standard, write the magic number and flags to that header so the bootloader can find it.
-.section .multiboot
-.align 4
-.long MAGIC
-.long FLAGS
-.long CHECKSUM
+.section .multiboot2
+.balign 8
+multiboot2_start:
+    .long MAGIC
+    .long ARCHITECTURE
+    .long multiboot2_end - multiboot2_start
+    .long -(MAGIC + ARCHITECTURE + (multiboot2_end - multiboot2_start))
+
+    .short INFO_REQUEST_TYPE
+    .short FLAGS
+    .long INFO_REQUEST_SIZE
+    .long REQUEST_MEMORY_MAP
+    .long REQUEST_RSDP
+
+    .short TERMINATOR_TYPE
+    .short FLAGS
+    .long TERMINATOR_SIZE
+multiboot2_end:
 
 // Reserve the memory for the stack.
 .section .bss
@@ -27,6 +44,7 @@ _start:
     // Make esp point to the top of the stack.
     mov $stack_top, %esp
     // Call the kernel main function.
+    mov %ebx, %esi    
     call init_global_objects
     call kernel_main
     // Fallback, ideally should never be hit.

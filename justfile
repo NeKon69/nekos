@@ -14,7 +14,7 @@ build:
     cmake -B {{build_dir}} -DCMAKE_BUILD_TYPE={{profile}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build {{build_dir}}
     cp {{build_dir}}/compile_commands.json .
-    if grub-file --is-x86-multiboot {{build_dir}}/{{kernel_elf}}; then
+    if grub-file --is-x86-multiboot2 {{build_dir}}/{{kernel_elf}}; then
         printf 'Multiboot OK\n'
     else
         printf 'Multiboot FAIL\n'

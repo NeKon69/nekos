@@ -1,8 +1,8 @@
 # AGENTS.md — NeKoS
 
-Guidance for any opencode agent working in this repo. Per-task detail lives in
-`.opencode/skills/*.md` and auto-loads when its description matches the current task; when a
-skill is active it extends or overrides the matching section here.
+Guidance for any opencode agent working in this repo. Per-task details are
+available via skills which you can load when neccessary using the
+"Skill" tool.
 
 ---
 
@@ -108,7 +108,7 @@ Follow the convention of the file you are editing; do not mass-rename during an 
 - Inline asm via `asm volatile(...)` with explicit clobber lists; standalone asm functions
   end with `.size <name>, . - <name>` so the debugger has frame info.
 - GAS/AT&T syntax via the system assembler by default. NASM is acceptable if the user asks.
-- C++ style: 4-space indent, opening brace on the same line, `reinterpret_cast` over C-style
+- C++ style: 2-space indent, opening brace on the same line, `reinterpret_cast` over C-style (basically, LLVM style).
   casts, no `auto` for raw numeric types where the type isn't obvious.
 
 ---
@@ -162,31 +162,7 @@ The user is a hobby OSdev learner who:
 
 ---
 
-## 9. Writing tests
-
-Two test tiers exist; both are covered in detail by the `write-tests`,
-`qemu-bochs-kernel-tests`, and `ci-pipeline` skills. The durable rule that applies regardless
-of tier:
-
-- **Tests are written against the spec, never the implementation.** Do not open the `.c` or
-  `.cpp` impl file for the function under test. Read the header declaration, the spec the user
-  pastes, and existing sibling tests for structural inspiration — no more.
-- Include edge cases the spec implies (empty input, exact-fit buffers, sign wraparound,
-  base-36 max). Omit filler cases (`with_spaces`, `with_special_chars`) that test nothing new.
-- No UB tests. If the spec lists UB conditions, note them in a comment but do not exercise
-  them.
-- Runner order mirrors declaration order in the header.
-- When the user rejects a test, rework it from the review note — do not re-add the dropped
-  case verbatim.
-
-The kernel tests run under both **qemu and bochs** because the two emulators disagree on
-subtle CPU behavior (e.g. whether the GDT accessed bit is set on `lgdt` alone). If one
-emulator passes and the other doesn't, the user wants to know — do not "fix" by deleting one
-run, add both to CI.
-
----
-
-## 10. Toolchain posture
+## 9. Toolchain posture
 
 - The user's machine has a locally-built LLVM trunk (often clang 23+). CI runners may have
   older clang. Trunk-only flags and attributes must be gated behind a clang-version check in
@@ -202,7 +178,7 @@ Details of the lifetime-safety flags and the `NEKOS_LIFETIMEBOUND` macro live in
 
 ---
 
-## 11. Reviewer agent baseline
+## 10. Reviewer agent baseline
 
 Applies only when this session is the `reviewer` agent. Full detail in the
 `reviewer-workflow` skill; the durable parts:
@@ -216,37 +192,7 @@ Applies only when this session is the `reviewer` agent. Full detail in the
 - You may use `review-bot_kernel_compile_test` to actually compile and run a snippet before
   posting a claim about it. Verified comments are worth more than unverified ones.
 
----
-
-## 12. PR workflow (brief)
-
-Full detail in the `pr-description-from-diff` and `address-reviewer-comments` skills. The
-durable parts:
-
-- When asked to generate a PR title/description, read `gh pr list --state all` first and
-  follow the style of previous PRs in this repo.
-- Write the description to a file when asked; resolve any rebase conflicts cleanly without
-  touching unrelated hunks.
-- When addressing reviewer comments (the user's own or another bot's): use `reinterpret_cast`
-  over C-style casts, preserve the existing file-header comment block, follow naming
-  conventions, and re-run `just build` (and if relevant `just test`) before saying you're done.
-
----
-
-## 13. Neovim config (brief)
-
-Full detail in the `neovim-debug-config` skill. The durable parts:
-
-- Global config at `~/.config/nvim/`. Project-local debug schema at `.nvim/` (gitignored) —
-  look there with Read/`ls`, not glob.
-- Project-local overrides load from project files with a fallback to default; don't hardcode
-  debug args into the plugin.
-- "predebug" runs a script in the background and is terminated when the debug session ends.
-- Read `~/.config/nvim/AGENTS.md` for nvim-specific guidance that lives outside this repo.
-
----
-
-## 14. Skills
+## 11. Skills
 
 `.opencode/skills/` holds per-task detail that auto-loads when its `description` matches the
 current task. An active skill extends or overrides the matching section of this file. If no
@@ -267,7 +213,7 @@ Current skills:
 
 ---
 
-## 15. Maintaining this file and skills
+## 12. Maintaining this file and skills
 
 When the user says something like "add a rule that …", "remember that …", "from now on …",
 "can you add a skill for …", or corrects an agent's behavior with a generalizable lesson:
@@ -290,7 +236,7 @@ for this session — and if the conflict is intentional and durable, update this
 
 ---
 
-## 16. When in doubt
+## 13. When in doubt
 
 - Re-read the user's last few messages. They usually already said what they want.
 - Prefer running a tool over describing what the tool would output.

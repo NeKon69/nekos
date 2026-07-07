@@ -1,4 +1,5 @@
 #include "nekos/drivers/serial.hpp"
+#include "io.h"
 #include <stdint.h>
 
 namespace drivers {
@@ -12,16 +13,6 @@ Serial::Serial() {
   outB(PORT + 3, 0x03); // 8 bits, no parity, one stop bit
   outB(PORT + 2, 0xC7); // enable FIFO, clear, 14-byte threshold
   outB(PORT + 4, 0x0B); // IRQs enabled, RTS/DSR set
-}
-
-uint8_t Serial::inB(uint16_t Port) {
-  uint8_t Result;
-  asm volatile("inb %1, %0" : "=a"(Result) : "Nd"(Port));
-  return Result;
-}
-
-void Serial::outB(uint16_t Port, uint8_t Data) {
-  asm volatile("outb %0, %1" : : "a"(Data), "Nd"(Port));
 }
 
 void Serial::writeChar(char Char) {
