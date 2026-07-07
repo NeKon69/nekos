@@ -46,7 +46,9 @@ _start:
     // Call the kernel main function.
     mov %ebx, %esi    
     call init_global_objects
+    push %esi
     call kernel_main
+    add $4, %esp
     // Fallback, ideally should never be hit.
     // Disable maskable interrupts.
     cli
