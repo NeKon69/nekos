@@ -61,10 +61,11 @@ void spuriousInterruptHandler(const Registers *Regs [[maybe_unused]]) {
 }
 
 void APIC::setupSIV() {
-  // Enable Spurious Interrupt Vector (i chose 254th vector as the handler for
+  // Enable Spurious Interrupt Vector (i chose 239th vector as the handler for
   // funs and giggles)
-  LAPICAddress[0xF0 / 4] = 0xFE | (1 << 8);
-  IH.setHandler(0xFE, spuriousInterruptHandler);
+  constexpr uint8_t SpuriousInterruptVector = 0xEF;
+  LAPICAddress[0xF0 / 4] = SpuriousInterruptVector | (1 << 8);
+  IH.setHandler(SpuriousInterruptVector, spuriousInterruptHandler);
 }
 
 void APIC::readAPICID() {
