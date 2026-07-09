@@ -5,7 +5,7 @@ SECTIONS {
   . = 2M;
   /* Read-only code */
   .text : ALIGN(4096) {
-    *(.multiboot)
+    *(.multiboot2)
     *(.text*)
   }
   .init_array : ALIGN(4096) {

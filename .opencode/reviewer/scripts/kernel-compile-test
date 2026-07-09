@@ -261,7 +261,7 @@ else
   exit $rc
 fi
 
-if grub-file --is-x86-multiboot "$BUILD_DIR/nekos.elf" >>"$BUILD_LOG" 2>&1; then
+if grub-file --is-x86-multiboot2 "$BUILD_DIR/nekos.elf" >>"$BUILD_LOG" 2>&1; then
   :
 else
   rc=$?

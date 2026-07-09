@@ -28,12 +28,12 @@ class InterruptHandler {
 public:
   using HandlerFunc = void (*)(const Registers *);
   void setHandler(uint8_t Vector, HandlerFunc Handler);
+  [[noreturn]] static void halt();
   static InterruptHandler &getInterruptHandler();
 
 private:
   InterruptHandler();
   void dumpRegisters(const Registers *Regs) const;
-  [[noreturn]] void halt();
   void handle(const Registers *Regs);
 
   friend void idt_handler_stub(const Registers *Regs);
