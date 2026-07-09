@@ -1,5 +1,6 @@
 #pragma once
 
+#include "attributes.h"
 #include "nekos/kernel.hpp"
 #include <stdint.h>
 
@@ -19,5 +20,5 @@ struct MADTIOAPIC : MADTRecord {
 } __attribute__((packed));
 
 uint32_t *discoverMADT(MB2Tag *TagList);
-MADTIOAPIC *findIOAPIC(uint32_t *MADT);
+MADTIOAPIC *findIOAPIC(uint32_t *MADT NEKOS_LIFETIMEBOUND);
 } // namespace nekos::interrupts

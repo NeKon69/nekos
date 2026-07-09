@@ -1,5 +1,4 @@
 #pragma once
-#include "kprintf.hpp"
 #include <stdint.h>
 
 struct MB2Tag {
