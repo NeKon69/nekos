@@ -1,6 +1,6 @@
 #include "nekos/kernel.hpp"
-#include "apic.hpp"
 #include "idt.hpp"
+#include "nekos/interrupts/apic.hpp"
 #include "nekos/kprintf.hpp"
 #if !defined(__i386__)
 #error "This needs to be compiled with a ix86-elf compiler"
@@ -12,17 +12,17 @@
 #endif
 
 extern "C" void kernel_main(Multiboot2Info *Info) {
-  IDT Idt;
+  // Construct APIC. This is a smoke test.
+  APIC &Apic = APIC::getAPIC(reinterpret_cast<MB2Tag *>(
+      reinterpret_cast<char *>(Info) + sizeof(Multiboot2Info)));
 #if NEKOS_KERNEL_TESTS
   kprintf("Hello how is your day?\n");
-  // Construct APIC.
-  APIC::getAPIC(reinterpret_cast<MB2Tag *>(reinterpret_cast<char *>(Info) +
-                                           sizeof(Multiboot2Info)));
-  // drivers::Serial Serial;
+  drivers::Serial Serial;
 
-  // tests::init(Serial);
-  // tests::runAll();
+  tests::init(Serial);
+  tests::runAll();
 #else
+  IDT Idt;
 #endif
   while (1)
     asm volatile("hlt");
