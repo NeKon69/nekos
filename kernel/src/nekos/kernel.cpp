@@ -15,6 +15,7 @@ extern "C" void kernel_main(Multiboot2Info *Info) {
   // Construct APIC. This is a smoke test.
   APIC &Apic = APIC::getAPIC(reinterpret_cast<MB2Tag *>(
       reinterpret_cast<char *>(Info) + sizeof(Multiboot2Info)));
+  (void)Apic;
 #if NEKOS_KERNEL_TESTS
   kprintf("Hello how is your day?\n");
   drivers::Serial Serial;
