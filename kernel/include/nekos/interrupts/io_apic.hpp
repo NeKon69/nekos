@@ -14,4 +14,4 @@ public:
 private:
   volatile uint32_t *Base;
 };
-}
+} // namespace nekos::interrupts

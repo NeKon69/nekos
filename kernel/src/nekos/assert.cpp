@@ -12,4 +12,4 @@ namespace nekos {
   for (;;)
     asm volatile("hlt");
 }
-}
+} // namespace nekos

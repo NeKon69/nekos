@@ -17,4 +17,4 @@ void IOAPIC::write(uint8_t Reg, uint32_t Data) const {
 }
 
 uint32_t IOAPIC::readVersion() const { return read(IOAPICVER); }
-}
+} // namespace nekos::interrupts

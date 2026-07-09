@@ -8,9 +8,9 @@ namespace nekos {
 }
 
 #ifndef NDEBUG
-#define nekosAssert(Expression)                                               \
-  ((Expression)                                                               \
-       ? static_cast<void>(0)                                                 \
+#define nekosAssert(Expression)                                                \
+  ((Expression)                                                                \
+       ? static_cast<void>(0)                                                  \
        : ::nekos::assertFail(#Expression, __FILE__, __LINE__, __func__))
 #else
 #define nekosAssert(Expression) static_cast<void>(0)

@@ -46,7 +46,7 @@ bool validateAPICSDT(char *ByteArray, uint32_t Size) {
     Checksum += ByteArray[I];
   return (Checksum & 0xFF) == 0;
 }
-}
+} // namespace
 
 uint32_t *discoverMADT(MB2Tag *TagList) {
   struct RSDPDescriptor {
@@ -155,4 +155,4 @@ MADTIOAPIC *findIOAPIC(uint32_t *MADT) {
   nekosAssert(IOAPIC != nullptr);
   return IOAPIC;
 }
-}
+} // namespace nekos::interrupts
