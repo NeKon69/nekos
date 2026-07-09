@@ -16,8 +16,8 @@ extern "C" void kernel_main(Multiboot2Info *Info) {
 #if NEKOS_KERNEL_TESTS
   kprintf("Hello how is your day?\n");
   // Construct APIC.
-  APIC::getAPIC(reinterpret_cast<Tag *>(reinterpret_cast<char *>(Info) +
-                                        sizeof(Multiboot2Info)));
+  APIC::getAPIC(reinterpret_cast<MB2Tag *>(reinterpret_cast<char *>(Info) +
+                                           sizeof(Multiboot2Info)));
   // drivers::Serial Serial;
 
   // tests::init(Serial);

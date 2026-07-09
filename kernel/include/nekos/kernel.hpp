@@ -2,7 +2,7 @@
 #include "kprintf.hpp"
 #include <stdint.h>
 
-struct Tag {
+struct MB2Tag {
   uint32_t Type;
   uint32_t Size;
 };
